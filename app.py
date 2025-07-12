@@ -251,7 +251,25 @@ def evaluacion_desempeno():
 @app.route("/marco-juridico")
 def marco_juridico():
     return render_template("marco_juridico.html")
+@app.route('/chat')
+def chatbot():
+    return render_template('chat.html')
+@app.route('/chat', methods=['POST'])
+def chat():
+    data = request.get_json()
+    pregunta = data.get('message', '').strip()
 
+    if not pregunta:
+        return {'response': '❌ Por favor, escribe una pregunta válida.'}
+
+    carpeta = 'documentos'
+    documentos = [os.path.join(carpeta, f) for f in os.listdir(carpeta) if f.endswith('.pdf')]
+
+    if not documentos:
+        return {'response': '⚠️ No hay documentos cargados para responder.'}
+
+    respuesta = obtener_respuesta_pregunta(pregunta, documentos)
+    return {'response': respuesta}
 if __name__ == '__main__':
     import os
     port = int(os.environ.get('PORT', 5000))
