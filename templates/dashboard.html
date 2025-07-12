@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% block title %}Menú Principal{% endblock %}
+
+{% block content %}
+<style>
+  .menu-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-bottom: 60px;
+  }
+  .list-group-item {
+    text-align: center;
+    font-size: 1.05rem;
+    padding: 15px;
+  }
+  .section-title {
+    margin-top: 40px;
+    margin-bottom: 10px;
+    text-align: center;
+    font-weight: bold;
+    color: #00a699;
+    font-size: 1.3rem;
+  }
+</style>
+
+<div class="menu-container">
+  <!-- Encabezado -->
+  <div class="text-center mb-4">
+    <h1 class="fw-bold">Menú Principal</h1>
+    <p class="lead">Bienvenido, <span class="text-primary">{{ session['usuario'] }}</span></p>
+  </div>
+
+  <!-- Herramientas principales -->
+  <div class="section-title">📊 Herramientas para planificar</div>
+  <div class="list-group shadow-sm rounded" style="min-width: 300px;">
+    <a href="{{ url_for('diagnostico') }}" class="list-group-item list-group-item-action">📊 Diagnóstico automático</a>
+    <a href="{{ url_for('arbol') }}" class="list-group-item list-group-item-action">🌳 Árbol de problemas</a>
+    <a href="{{ url_for('marco_logico') }}" class="list-group-item list-group-item-action">📋 Marco lógico</a>
+    <a href="{{ url_for('arbol_marco') }}" class="list-group-item list-group-item-action">🌲 Árbol + Marco Lógico</a>
+    <a href="{{ url_for('generar_plan') }}" class="list-group-item list-group-item-action">🛠️ Generar Plan</a>
+    <a href="{{ url_for('plan_generado') }}" class="list-group-item list-group-item-action">📄 Plan generado</a>
+  </div>
+
+  <!-- Cursos y Talleres -->
+  <div class="section-title">🎓 Cursos y Talleres</div>
+  <div class="list-group shadow-sm rounded" style="min-width: 300px;">
+    <a href="{{ url_for('curso_marco_logico') }}" class="list-group-item list-group-item-action">📌 Curso de Matriz del Marco Lógico</a>
+    <a href="{{ url_for('taller_diagnostico') }}" class="list-group-item list-group-item-action">📈 Taller de diagnóstico y análisis</a>
+    <a href="#" class="list-group-item list-group-item-action">📤 Subir material (solo admin)</a>
+  </div>
+
+  <!-- PbR y Evaluación -->
+  <div class="section-title">📊 Políticas Públicas y PbR</div>
+  <div class="list-group shadow-sm rounded" style="min-width: 300px;">
+    <a href="{{ url_for('curso_presupuesto_resultados') }}" class="list-group-item list-group-item-action">💰 Presupuesto basado en Resultados</a>
+    <a href="{{ url_for('evaluacion_desempeno') }}" class="list-group-item list-group-item-action">📈 Evaluación de programas</a>
+  </div>
+
+  <!-- Chatbot / Asesoría -->
+  <div class="section-title">🤖 Asesoría Online</div>
+  <div class="list-group shadow-sm rounded" style="min-width: 300px;">
+    <a href="{{ url_for('chat') }}" class="list-group-item list-group-item-action">Chatbot Educativo</a>
+  </div>
+
+  <!-- Marco Jurídico -->
+  <div class="section-title">⚖️ Marco Jurídico</div>
+  <div class="list-group shadow-sm rounded" style="min-width: 300px;">
+    <a href="{{ url_for('marco_juridico') }}" class="list-group-item list-group-item-action">📄 Ver Marco Jurídico</a>
+  </div>
+
+  <!-- Cerrar sesión -->
+  <div class="mt-4">
+    <a href="{{ url_for('logout') }}" class="btn btn-outline-danger rounded-pill px-4">🔒 Cerrar sesión</a>
+  </div>
+</div>
+{% endblock %}

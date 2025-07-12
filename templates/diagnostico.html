@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}Diagnóstico Municipal{% endblock %}
+
+{% block content %}
+<h2 class="mb-4">Diagnóstico automático por municipio</h2>
+
+<form method="POST" class="mb-5 d-flex flex-column flex-md-row gap-3 align-items-center">
+  <select name="municipio" id="municipio" class="form-select flex-grow-1" required>
+    <option value="" selected disabled>Selecciona un municipio...</option>
+    {% for m in municipios %}
+      <option value="{{ m['clave'] }}">{{ m['nombre'] }}</option>
+    {% endfor %}
+  </select>
+  <button type="submit" class="btn btn-primary-custom px-4">Buscar</button>
+  <a href="{{ url_for('dashboard') }}" class="btn btn-secondary px-4">Regresar</a>
+</form>
+
+{% if resultado %}
+  <div class="card card-custom p-4">
+    <h3 class="fw-semibold mb-3">Diagnóstico de {{ resultado.municipio }}</h3>
+    <div class="row row-cols-1 row-cols-md-2 g-4">
+
+      {% for campo, etiqueta in {
+        'poblacion_total': 'Población total',
+        'rezago_educativo': 'Rezago educativo',
+        'pobreza': 'Pobreza',
+        'salud': 'Salud',
+        'seguridad': 'Seguridad',
+        'viviendas': 'Viviendas',
+        'poblacion_indigena': 'Población indígena',
+        'marginacion': 'Marginación',
+        'imparticion_justicia': 'Impartición de justicia',
+        'indice_desarrollo': 'Índice de desarrollo',
+        'demandas': 'Demandas ciudadanas',
+        'desarrollo_urbano': 'Desarrollo urbano',
+        'servicios_basicos': 'Servicios básicos',
+        'medio_ambiente': 'Medio ambiente',
+        'economia': 'Economía',
+        'cohesion_social': 'Cohesión social',
+        'condiciones_locales': 'Condiciones locales',
+        'delimitacion_territorial': 'Delimitación territorial',
+        'caracteristicas_fisicas': 'Características físicas',
+        'caracteristicas_sociales': 'Características sociales',
+        'participacion_ciudadana': 'Participación ciudadana',
+        'sostenibilidad_ambiental': 'Sostenibilidad ambiental',
+        'seguimiento_politicas': 'Seguimiento de políticas'
+      }.items() %}
+        <div class="col">
+          <div class="bg-light rounded shadow-sm p-3 h-100 border-start border-4 border-primary">
+            <h6 class="text-muted mb-1">{{ etiqueta }}</h6>
+            <p class="mb-0 fw-bold text-dark">{{ resultado[campo] }}</p>
+          </div>
+        </div>
+      {% endfor %}
+
+    </div>
+  </div>
+{% endif %}
+{% endblock %}

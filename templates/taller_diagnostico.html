@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}Taller de Diagnóstico y Análisis{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="bg-white p-4 rounded shadow">
+    <h2 class="text-primary mb-4 text-center">📈 Taller de Diagnóstico y Análisis</h2>
+
+    <!-- Sección de video explicativo -->
+    <section class="mb-5">
+      <h4 class="text-info">🎬 Video Explicativo</h4>
+      <p>En este taller aprenderás a realizar un diagnóstico municipal utilizando datos reales e interpretación técnica.</p>
+      <video controls class="w-100 rounded mb-3">
+        <source src="{{ url_for('static', filename='videos/taller_diagnostico.mp4') }}" type="video/mp4">
+        Tu navegador no soporta la reproducción de video.
+      </video>
+    </section>
+
+    <!-- Botón para descargar PDF -->
+    <section class="mb-5">
+      <h4 class="text-info">📄 Material Complementario</h4>
+      <p>Descarga el archivo PDF con los pasos del diagnóstico y ejemplos aplicados.</p>
+      <a href="{{ url_for('static', filename='pdfs/taller_diagnostico.pdf') }}" class="btn btn-outline-success" download>
+        📥 Descargar material PDF
+      </a>
+    </section>
+
+    <!-- Botón volver al dashboard -->
+    <div class="text-center mt-4">
+      <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary">⬅ Volver al menú principal</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

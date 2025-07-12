@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Guía para Elaborar un Plan Municipal de Desarrollo</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+      max-width: 900px;
+      margin: auto;
+      padding: 40px;
+      background-color: #fdfdfd;
+      color: #333;
+    }
+    h1, h2, h3 {
+      color: #00796B;
+    }
+    textarea {
+      width: 100%;
+      height: 100px;
+      margin-bottom: 20px;
+      font-family: Arial, sans-serif;
+    }
+    .seccion {
+      border: 1px solid #ccc;
+      padding: 20px;
+      margin-bottom: 30px;
+      background: #fff;
+      border-left: 5px solid #00a699;
+    }
+    .botones {
+      margin-top: 30px;
+      text-align: center;
+    }
+    .btn {
+      padding: 10px 20px;
+      background-color: #00796B;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      margin: 10px;
+      text-decoration: none;
+      display: inline-block;
+    }
+    .btn:hover {
+      background-color: #005f50;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Guía para Elaborar un Plan Municipal de Desarrollo (PMD)</h1>
+  <p><strong>Objetivo:</strong> Elaborar un PMD que cumpla con los lineamientos legales y técnicos, promoviendo la participación ciudadana, la evidencia diagnóstica y la articulación estratégica.</p>
+
+  <!-- Secciones -->
+  <div class="seccion">
+    <h2>1. Introducción</h2>
+    <p>Explica qué es el Plan Municipal, su periodo de vigencia, el contexto del municipio y su relación con otros niveles de gobierno.</p>
+    <textarea placeholder="Escribe aquí la introducción del plan..."></textarea>
+  </div>
+
+  <div class="seccion">
+    <h2>2. Marco Jurídico</h2>
+    <p>Describe las leyes y normas que sustentan el plan: Constitución, leyes estatales, reglamentos municipales.</p>
+    <textarea placeholder="Incluye aquí el marco legal aplicable..."></textarea>
+  </div>
+
+  <div class="seccion">
+    <h2>3. Diagnóstico Municipal</h2>
+    <p>Presenta datos del municipio: población, pobreza, salud, seguridad, medio ambiente, etc.</p>
+    <textarea placeholder="Incluye aquí los datos más relevantes del diagnóstico..."></textarea>
+  </div>
+
+  <div class="seccion">
+    <h2>4. Árbol de Problemas y Árbol de Objetivos</h2>
+    <p>Usa la herramienta para convertir problemas en objetivos y estructurar el plan estratégicamente.</p>
+    <textarea placeholder="Resume aquí los principales problemas y objetivos..."></textarea>
+  </div>
+
+  <div class="seccion">
+    <h2>5. Matriz del Marco Lógico</h2>
+    <p>Especifica los objetivos, indicadores, medios de verificación y supuestos.</p>
+    <textarea placeholder="Incluye aquí un resumen o pega tu matriz completa..."></textarea>
+  </div>
+
+  <div class="seccion">
+    <h2>6. Líneas de Acción y Programas</h2>
+    <p>Define qué acciones se realizarán para alcanzar los objetivos. Puedes organizarlos por ejes estratégicos (económico, social, ambiental, etc.)</p>
+    <textarea placeholder="Escribe aquí las principales líneas de acción del plan..."></textarea>
+  </div>
+
+  <div class="seccion">
+    <h2>7. Mecanismos de Seguimiento y Evaluación</h2>
+    <p>Indica cómo se va a monitorear el avance del plan y con qué indicadores.</p>
+    <textarea placeholder="Describe los mecanismos de seguimiento..."></textarea>
+  </div>
+
+  <div class="seccion">
+    <h2>8. Participación Ciudadana</h2>
+    <p>Explica cómo se involucró o se involucrará a la población en el proceso de planeación.</p>
+    <textarea placeholder="Describe aquí los mecanismos de participación..."></textarea>
+  </div>
+
+  <div class="seccion">
+    <h2>9. Presupuesto Basado en Resultados</h2>
+    <p>Relaciona las acciones con su costo estimado y resultados esperados.</p>
+    <textarea placeholder="Agrega un resumen del presupuesto por resultados..."></textarea>
+  </div>
+
+  <div class="seccion">
+    <h2>10. Anexos</h2>
+    <p>Agrega mapas, datos estadísticos, gráficas o cualquier material complementario.</p>
+    <textarea placeholder="Lista aquí los anexos o incluye enlaces..."></textarea>
+  </div>
+
+  <!-- Botones -->
+  <div class="botones">
+    <a href="{{ url_for('descargar_plan_pdf') }}" class="btn">📄 Descargar PDF</a>
+    <a href="{{ url_for('descargar_plan_word') }}" class="btn">📝 Descargar Word</a>
+    <a href="{{ url_for('dashboard') }}" class="btn" style="background-color: #888;">⬅ Menú Principal</a>
+  </div>
+
+</body>
+</html>

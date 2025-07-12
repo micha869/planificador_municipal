@@ -1,0 +1,318 @@
+[
+  {
+    "clave": "12001",
+    "nombre": "Acapulco de Juárez"
+  },
+  {
+    "clave": "12002",
+    "nombre": "Ahuacuotzingo"
+  },
+  {
+    "clave": "12003",
+    "nombre": "Ajuchitlán del Progreso"
+  },
+  {
+    "clave": "12004",
+    "nombre": "Alcozauca de Guerrero"
+  },
+  {
+    "clave": "12005",
+    "nombre": "Alpoyeca"
+  },
+  {
+    "clave": "12006",
+    "nombre": "Apaxtla"
+  },
+  {
+    "clave": "12007",
+    "nombre": "Arcelia"
+  },
+  {
+    "clave": "12008",
+    "nombre": "Atenango del Río"
+  },
+  {
+    "clave": "12009",
+    "nombre": "Atlamajalcingo del Monte"
+  },
+  {
+    "clave": "12010",
+    "nombre": "Atlixtac"
+  },
+  {
+    "clave": "12011",
+    "nombre": "Atoyac de Álvarez"
+  },
+  {
+    "clave": "12012",
+    "nombre": "Ayutla de los Libres"
+  },
+  {
+    "clave": "12013",
+    "nombre": "Azoyú"
+  },
+  {
+    "clave": "12014",
+    "nombre": "Benito Juárez"
+  },
+  {
+    "clave": "12015",
+    "nombre": "Buenavista de Cuéllar"
+  },
+  {
+    "clave": "12016",
+    "nombre": "Chilapa de Álvarez"
+  },
+  {
+    "clave": "12017",
+    "nombre": "Chilpancingo de los Bravo"
+  },
+  {
+    "clave": "12018",
+    "nombre": "Coahuayutla de José María Izazaga"
+  },
+  {
+    "clave": "12019",
+    "nombre": "Cocula"
+  },
+  {
+    "clave": "12020",
+    "nombre": "Copala"
+  },
+  {
+    "clave": "12021",
+    "nombre": "Copalillo"
+  },
+  {
+    "clave": "12022",
+    "nombre": "Copanatoyac"
+  },
+  {
+    "clave": "12023",
+    "nombre": "Coyuca de Benítez"
+  },
+  {
+    "clave": "12024",
+    "nombre": "Coyuca de Catalán"
+  },
+  {
+    "clave": "12025",
+    "nombre": "Cuajinicuilapa"
+  },
+  {
+    "clave": "12026",
+    "nombre": "Cualác"
+  },
+  {
+    "clave": "12027",
+    "nombre": "Cuautepec"
+  },
+  {
+    "clave": "12028",
+    "nombre": "Cuetzala del Progreso"
+  },
+  {
+    "clave": "12029",
+    "nombre": "Cutzamala de Pinzón"
+  },
+  {
+    "clave": "12030",
+    "nombre": "Eduardo Neri"
+  },
+  {
+    "clave": "12031",
+    "nombre": "Florencio Villarreal"
+  },
+  {
+    "clave": "12032",
+    "nombre": "General Canuto A. Neri"
+  },
+  {
+    "clave": "12033",
+    "nombre": "General Heliodoro Castillo"
+  },
+  {
+    "clave": "12034",
+    "nombre": "Huamuxtitlán"
+  },
+  {
+    "clave": "12035",
+    "nombre": "Huitzuco de los Figueroa"
+  },
+  {
+    "clave": "12036",
+    "nombre": "Iguala de la Independencia"
+  },
+  {
+    "clave": "12037",
+    "nombre": "Igualapa"
+  },
+  {
+    "clave": "12038",
+    "nombre": "Ixcateopan de Cuauhtémoc"
+  },
+  {
+    "clave": "12039",
+    "nombre": "Juchitán"
+  },
+  {
+    "clave": "12040",
+    "nombre": "La Unión de Isidoro Montes de Oca"
+  },
+  {
+    "clave": "12041",
+    "nombre": "Leonardo Bravo"
+  },
+  {
+    "clave": "12042",
+    "nombre": "Malinaltepec"
+  },
+  {
+    "clave": "12043",
+    "nombre": "Marquelia"
+  },
+  {
+    "clave": "12044",
+    "nombre": "Metlatónoc"
+  },
+  {
+    "clave": "12045",
+    "nombre": "Mochitlán"
+  },
+  {
+    "clave": "12046",
+    "nombre": "Olinalá"
+  },
+  {
+    "clave": "12047",
+    "nombre": "Ometepec"
+  },
+  {
+    "clave": "12048",
+    "nombre": "Pedro Ascencio Alquisiras"
+  },
+  {
+    "clave": "12049",
+    "nombre": "Petatlán"
+  },
+  {
+    "clave": "12050",
+    "nombre": "Pilcaya"
+  },
+  {
+    "clave": "12051",
+    "nombre": "Pungarabato"
+  },
+  {
+    "clave": "12052",
+    "nombre": "Quechultenango"
+  },
+  {
+    "clave": "12053",
+    "nombre": "San Luis Acatlán"
+  },
+  {
+    "clave": "12054",
+    "nombre": "San Marcos"
+  },
+  {
+    "clave": "12055",
+    "nombre": "San Miguel Totolapan"
+  },
+  {
+    "clave": "12056",
+    "nombre": "Taxco de Alarcón"
+  },
+  {
+    "clave": "12057",
+    "nombre": "Tecoanapa"
+  },
+  {
+    "clave": "12058",
+    "nombre": "Tecpan de Galeana"
+  },
+  {
+    "clave": "12059",
+    "nombre": "Teloloapan"
+  },
+  {
+    "clave": "12060",
+    "nombre": "Tepecoacuilco de Trujano"
+  },
+  {
+    "clave": "12061",
+    "nombre": "Tetipac"
+  },
+  {
+    "clave": "12062",
+    "nombre": "Tixtla de Guerrero"
+  },
+  {
+    "clave": "12063",
+    "nombre": "Tlacoachistlahuaca"
+  },
+  {
+    "clave": "12064",
+    "nombre": "Tlacoapa"
+  },
+  {
+    "clave": "12065",
+    "nombre": "Tlalchapa"
+  },
+  {
+    "clave": "12066",
+    "nombre": "Tlalixtaquilla de Maldonado"
+  },
+  {
+    "clave": "12067",
+    "nombre": "Tlapa de Comonfort"
+  },
+  {
+    "clave": "12068",
+    "nombre": "Tlapehuala"
+  },
+  {
+    "clave": "12069",
+    "nombre": "Xalpatláhuac"
+  },
+  {
+    "clave": "12070",
+    "nombre": "Xochihuehuetlán"
+  },
+  {
+    "clave": "12071",
+    "nombre": "Xochistlahuaca"
+  },
+  {
+    "clave": "12072",
+    "nombre": "Zapotitlán Tablas"
+  },
+  {
+    "clave": "12073",
+    "nombre": "Zihuatanejo de Azueta"
+  },
+  {
+    "clave": "12074",
+    "nombre": "Zirándaro"
+  },
+  {
+    "clave": "12075",
+    "nombre": "Zitlala"
+  },
+  {
+    "clave": "12076",
+    "nombre": "José Joaquín de Herrera"
+  },
+  {
+    "clave": "12077",
+    "nombre": "Juchitán"
+  },
+  {
+    "clave": "12078",
+    "nombre": "Juan R. Escudero"
+  },
+  {
+    "clave": "12079",
+    "nombre": "Iliatenco"
+  }
+]

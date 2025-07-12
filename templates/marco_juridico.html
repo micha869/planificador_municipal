@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Marco Jurídico{% endblock %}
+
+{% block content %}
+<style>
+  .section-title {
+    margin-top: 40px;
+    margin-bottom: 20px;
+    text-align: center;
+    font-weight: bold;
+    color: #00a699;
+    font-size: 1.5rem;
+  }
+</style>
+
+<div class="container">
+  <!-- Título -->
+  <div class="section-title">⚖️ Marco Jurídico</div>
+
+  <!-- Lista de documentos -->
+  <div class="list-group shadow-sm rounded" style="max-width: 600px; margin: auto;">
+    <a href="#" class="list-group-item list-group-item-action">
+      📄 Constitución Política de los Estados Unidos Mexicanos
+    </a>
+    <a href="#" class="list-group-item list-group-item-action">
+      📄 Ley General de Asentamientos Humanos y Desarrollo Urbano
+    </a>
+    <a href="#" class="list-group-item list-group-item-action">
+      📄 Ley de Planeación
+    </a>
+    <a href="#" class="list-group-item list-group-item-action">
+      📄 Constitución Política del Estado de Guerrero
+    </a>
+    <a href="#" class="list-group-item list-group-item-action">
+      📄 Ley 790 de Guerrero sobre Asentamientos Humanos
+    </a>
+  </div>
+</div>
+{% endblock %}

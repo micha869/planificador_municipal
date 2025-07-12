@@ -1,0 +1,108 @@
+{% extends "base.html" %} 
+{% block title %}Curso: Matriz del Marco Lógico{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="bg-white p-4 rounded shadow">
+    <h2 class="text-primary mb-4 text-center">📘 Curso: Matriz del Marco Lógico</h2>
+
+    <!-- Sección: Progreso del curso -->
+    <div class="mb-4">
+      <h5>📈 Progreso del curso:</h5>
+      <div class="progress mb-2">
+        <div id="progresoBarra" class="progress-bar bg-success" style="width: 0%">0%</div>
+      </div>
+    </div>
+
+    <!-- Recorre módulos dinámicamente -->
+    {% set modulos = [
+      {
+        'titulo': '🎬 Introducción al Marco Lógico',
+        'descripcion': 'Conoce qué es el marco lógico, su historia, aplicaciones y diferencias entre metodología y matriz.',
+        'video': 'videos/intro_marco_logico.mp4',
+        'pdf': 'pdfs/introduccion.pdf'
+      },
+      {
+        'titulo': '📚 Teoría del Marco Lógico',
+        'descripcion': 'Explora los conceptos clave: ¿Qué es?, diferencias entre metodología y matriz, y sus aplicaciones.',
+        'video': 'videos/teoria_marco_logico.mp4',
+        'pdf': 'pdfs/teoria_marco_logico.pdf'
+      },
+      {
+        'titulo': '🛠️ Cómo hacer un proyecto con la metodología',
+        'descripcion': 'Paso a paso para construir un proyecto sólido usando el marco lógico.',
+        'video': 'videos/paso_a_paso_proyecto.mp4',
+        'pdf': 'pdfs/ejemplo_proyecto_marco_logico.pdf'
+      }
+    ] %}
+{% for modulo in modulos %}
+<section class="mb-5 modulo-curso" data-id="{{ loop.index }}">
+  <h4 class="text-info">{{ modulo.titulo }}</h4>
+  <p>{{ modulo.descripcion }}</p>
+  <video controls class="w-100 rounded mb-3">
+    <source src="{{ url_for('static', filename=modulo.video) }}" type="video/mp4">
+    Tu navegador no soporta el video.
+  </video>
+  <a href="{{ url_for('static', filename=modulo.pdf) }}" class="btn btn-outline-success" download>
+    📥 Descargar material PDF
+  </a>
+  <div class="form-check mt-3">
+    <input class="form-check-input modulo-check" type="checkbox" value="{{ loop.index }}" id="modulo{{ loop.index }}">
+    <label class="form-check-label" for="modulo{{ loop.index }}">
+      Marcar como completado
+    </label>
+  </div>
+</section>
+{% endfor %}
+
+    <!-- Sección: Subir nuevo contenido -->
+    {% if session.get('is_admin') %}
+    <section class="mb-5">
+      <h4 class="text-warning">📤 Subir nuevo contenido (solo administradores)</h4>
+      <form action="{{ url_for('subir_archivo') }}" method="post" enctype="multipart/form-data" class="mb-3">
+        <label>Subir archivo PDF o video:</label>
+        <input type="file" name="archivo" class="form-control mb-2" required>
+        <button class="btn btn-warning" type="submit">Subir archivo</button>
+      </form>
+    </section>
+    {% endif %}
+
+    <!-- Botón volver -->
+    <div class="text-center mt-4">
+      <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary">⬅ Volver al menú principal</a>
+    </div>
+  </div>
+</div>
+
+<!-- Script: Guardar progreso en localStorage -->
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const checks = document.querySelectorAll('.modulo-check');
+    const barra = document.getElementById('progresoBarra');
+    const total = checks.length;
+
+    function actualizarProgreso() {
+      let completados = 0;
+      checks.forEach((c, i) => {
+        const estado = localStorage.getItem('modulo_' + i);
+        if (estado === 'true') {
+          c.checked = true;
+          completados++;
+        }
+      });
+      const porcentaje = Math.round((completados / total) * 100);
+      barra.style.width = porcentaje + '%';
+      barra.innerText = porcentaje + '%';
+    }
+
+    checks.forEach((check, i) => {
+      check.addEventListener('change', () => {
+        localStorage.setItem('modulo_' + i, check.checked);
+        actualizarProgreso();
+      });
+    });
+
+    actualizarProgreso();
+  });
+</script>
+{% endblock %}

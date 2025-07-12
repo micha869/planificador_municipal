@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Curso: Presupuesto basado en Resultados{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="bg-white p-4 rounded shadow">
+    <h2 class="text-primary mb-4 text-center">💰 Curso: Presupuesto basado en Resultados</h2>
+
+    {% for modulo in modulos_pbr %}
+    <section class="mb-5 modulo-curso">
+      <h4 class="text-info">{{ modulo.titulo }}</h4>
+      <p>{{ modulo.descripcion }}</p>
+      <video controls class="w-100 rounded mb-3">
+        <source src="{{ url_for('static', filename=modulo.video) }}" type="video/mp4">
+        Tu navegador no soporta el video.
+      </video>
+      <a href="{{ url_for('static', filename=modulo.pdf) }}" class="btn btn-outline-success" download>
+        📥 Descargar material PDF
+      </a>
+    </section>
+    {% endfor %}
+
+    {% if session.get('is_admin') %}
+    <section class="mb-5">
+      <h4 class="text-warning">📤 Subir nuevo contenido (solo administradores)</h4>
+      <form action="{{ url_for('curso_presupuesto_resultados') }}" method="post" enctype="multipart/form-data" class="mb-3">
+        <label>Subir archivo PDF o video:</label>
+        <input type="file" name="archivo" class="form-control mb-2" required>
+        <button class="btn btn-warning" type="submit">Subir archivo</button>
+      </form>
+    </section>
+    {% endif %}
+
+    <div class="text-center mt-4">
+      <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary">⬅ Volver al menú principal</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

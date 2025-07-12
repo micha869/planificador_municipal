@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block title %}Cursos | Planificador Municipal{% endblock %}
+
+{% block content %}
+<div class="text-center py-5">
+  <h1 class="mb-3">🎓 Cursos de Planeación Municipal</h1>
+  <p class="lead">Capacitación para funcionarios públicos, estudiantes e investigadores</p>
+</div>
+
+<div class="row mb-5">
+  <div class="col-md-6">
+    <img src="https://media.istockphoto.com/id/1255007146/id/foto/tinjauan-dokumen-kontrak-diskusi-auditor.jpg?s=170667a&w=0&k=20&c=88SYlwvYOnK-_utHyh1LWGRG6w78skHnKIecGyzQGRQ=" class="img-fluid rounded" alt="Curso de planeación">
+  </div>
+  <div class="col-md-6">
+    <h3>🧠 Curso: Marco Lógico aplicado al Desarrollo Municipal</h3>
+    <p>Aprende a construir proyectos de impacto con herramientas como el árbol de problemas, marco lógico y diagnóstico municipal.</p>
+    <ul class="list-group list-group-flush mb-3">
+      <li class="list-group-item">✅ Diagnóstico con datos del INEGI y CONEVAL</li>
+      <li class="list-group-item">✅ Árbol de problemas y objetivos</li>
+      <li class="list-group-item">✅ Matriz del marco lógico editable</li>
+      <li class="list-group-item">✅ Ejercicios prácticos y evaluación final</li>
+    </ul>
+    <a href="{{ url_for('dashboard') }}" class="btn btn-primary btn-lg">Acceder al Curso</a>
+
+  </div>
+</div>
+
+<div class="row text-center">
+  <div class="col-md-4">
+    <h5>📚 Modalidad</h5>
+    <p>100% en línea, con acceso desde cualquier dispositivo</p>
+  </div>
+  <div class="col-md-4">
+    <h5>🎯 Dirigido a</h5>
+    <p>Funcionarios, estudiantes, docentes y profesionistas</p>
+  </div>
+  <div class="col-md-4">
+    <h5>🎓 Certificación</h5>
+    <p>Constancia digital al finalizar con aprovechamiento</p>
+  </div>
+</div>
+<h3 class="text-center">🎥 Vista previa del curso</h3>
+<div class="ratio ratio-16x9 mb-4">
+  <video controls>
+    <source src="{{ url_for('static', filename='videos/video_promocional.mp4') }}" type="video/mp4">
+    Tu navegador no admite el video HTML5.
+  </video>
+</div>
+
+
+{% endblock %}

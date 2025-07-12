@@ -1,0 +1,20 @@
+{
+  "problema_central": "Alta deserción escolar",
+  "causas": [
+    {
+      "texto": "Falta de transporte",
+      "causas": [
+        {"texto": "Malas vías"},
+        {"texto": "Escasez de rutas"}
+      ]
+    },
+    {
+      "texto": "Pobreza",
+      "causas": []
+    }
+  ],
+  "consecuencias": [
+    {"texto": "Bajo nivel educativo"},
+    {"texto": "Desempleo juvenil"}
+  ]
+}

@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Evaluación de Desempeño{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+  <h2 class="text-center text-primary mb-4">📈 Evaluación del Desempeño de Programas Públicos</h2>
+
+  <p class="lead">La evaluación del desempeño es una herramienta clave dentro del ciclo de políticas públicas, especialmente en el Presupuesto basado en Resultados (PbR).</p>
+
+  <div class="card card-custom mt-4 shadow-sm">
+    <div class="card-body">
+      <h5 class="card-title">🔎 ¿Qué es la Evaluación del Desempeño?</h5>
+      <p>Es el proceso de análisis sistemático que busca medir los avances, logros y resultados de los programas presupuestarios con base en indicadores estratégicos y de gestión.</p>
+    </div>
+  </div>
+
+  <div class="card card-custom mt-3 shadow-sm">
+    <div class="card-body">
+      <h5 class="card-title">📋 Tipos comunes de evaluación</h5>
+      <ul>
+        <li><strong>Evaluación de diseño:</strong> Analiza la lógica interna del programa y su coherencia con los objetivos.</li>
+        <li><strong>Evaluación de procesos:</strong> Examina cómo se implementa el programa.</li>
+        <li><strong>Evaluación de resultados:</strong> Revisa si se lograron los objetivos previstos.</li>
+        <li><strong>Evaluación de impacto:</strong> Analiza los cambios atribuibles al programa.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card card-custom mt-3 shadow-sm mb-5">
+    <div class="card-body">
+      <h5 class="card-title">📊 Relación con el PbR</h5>
+      <p>La evaluación del desempeño permite asignar recursos públicos de manera más eficiente, al identificar qué programas realmente generan resultados y contribuyen al bienestar social.</p>
+    </div>
+  </div>
+
+  <div class="text-center">
+    <a href="{{ url_for('dashboard') }}" class="btn btn-outline-primary">⬅️ Volver al Menú Principal</a>
+  </div>
+</div>
+{% endblock %}

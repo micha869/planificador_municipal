@@ -1,0 +1,197 @@
+{% extends 'base.html' %}
+
+{% block title %}Árbol de Problemas{% endblock %}
+
+{% block head %}
+<!-- jsTree CSS -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.3.12/themes/default/style.min.css" />
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="fw-bold">Árbol de Problemas</h1>
+    <a href="{{ url_for('dashboard') }}" class="btn btn-outline-primary">← Volver al menú principal</a>
+  </div>
+
+  <section class="mb-4">
+    <h2>¿Qué es?</h2>
+    <p>El árbol de problemas es una herramienta para identificar las causas y efectos de un problema central. Ayuda a tomar decisiones más informadas en la planeación.</p>
+  </section>
+
+  <section class="mb-5">
+    <h2>Simulador interactivo</h2>
+    <p>Haz clic derecho en cualquier nodo para agregar o eliminar nodos. Puedes exportar el árbol en formato JSON o PDF.</p>
+
+    <div id="arbolProblemas" class="border rounded p-3 mb-3" style="min-height: 300px;"></div>
+
+    <div>
+      <button class="btn btn-success me-2" onclick="exportarArbol()">📤 Exportar JSON</button>
+      <button class="btn btn-primary ms-2" onclick="descargarArbol()">💾 Descargar JSON</button>
+      <button class="btn btn-info ms-2" onclick="descargarPDF()">📄 Descargar PDF</button>
+      <button class="btn btn-danger ms-2" onclick="reiniciarArbol()">🔁 Reiniciar árbol</button>
+      <button class="btn btn-warning ms-2" onclick="guardarArbolProblemas()">🧠 Guardar en navegador</button>
+
+    </div>
+
+    <pre id="jsonSalida" class="bg-light mt-4 p-3 border rounded d-none"></pre>
+  </section>
+
+  <hr class="my-5">
+
+  <section class="mb-4">
+    <h2>¿Qué es un Árbol de Problemas y para qué se utiliza?</h2>
+    <p>
+      El árbol de problemas es una herramienta visual que ayuda a identificar, analizar y entender un problema central en su contexto.
+      Está compuesto por tres partes principales:
+    </p>
+    <ul>
+      <li><strong>Problema central:</strong> Situación negativa que se desea cambiar. Se coloca en el tronco del árbol.</li>
+      <li><strong>Causas:</strong> Factores que provocan el problema. Se ubican en las raíces del árbol.</li>
+      <li><strong>Efectos:</strong> Consecuencias o impactos que el problema genera. Se sitúan en la copa del árbol.</li>
+    </ul>
+  </section>
+
+  <section class="mb-4">
+    <h2>¿Cómo funciona?</h2>
+    <p>
+      Esta herramienta parte de un diagnóstico participativo o técnico. Se formula el problema principal y luego se analiza
+      “¿por qué ocurre?” para identificar causas, y “¿qué sucede como resultado?” para determinar efectos.
+      Esta organización permite visualizar las relaciones causales de manera clara y comprensible.
+    </p>
+  </section>
+
+  <section class="mb-4">
+    <h2>¿Cómo ayuda en la planeación municipal?</h2>
+    <p>
+      En la administración pública municipal, el árbol de problemas permite:
+    </p>
+    <ul>
+      <li>Focalizar los esfuerzos del gobierno local en causas reales y no solo en síntomas.</li>
+      <li>Establecer prioridades en la asignación de recursos.</li>
+      <li>Diseñar proyectos y programas con base en evidencia y lógica causal.</li>
+      <li>Facilitar la elaboración de marcos lógicos, presupuestos basados en resultados (PbR), POA y políticas públicas efectivas.</li>
+    </ul>
+  </section>
+
+  <section class="mb-4">
+    <h2>Consejo final</h2>
+    <p>
+      Recuerda que el objetivo no es casarse con una solución, sino enamorarse del problema.
+      Entenderlo a profundidad te permitirá generar alternativas más efectivas, sostenibles y adecuadas para tu comunidad.
+    </p>
+  </section>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.3.12/jstree.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<script>
+  let dataInicial = [
+    {
+      "id": "problema_central",
+      "text": "Problema Central: Alta deserción escolar",
+      "state": { "opened": true },
+      "children": [
+        { "id": "causas", "text": "Causas", "children": [] },
+        { "id": "efectos", "text": "Efectos", "children": [] }
+      ]
+    }
+  ];
+
+  let arbolData = JSON.parse(JSON.stringify(dataInicial));
+
+  function limpiarNodos(nodos) {
+    return nodos.map(nodo => ({
+      text: nodo.text,
+      children: nodo.children ? limpiarNodos(nodo.children) : []
+    }));
+  }
+
+    $(function () {
+    $('#arbolProblemas').jstree({
+      'core': {
+        'check_callback': true,
+        'data': arbolData
+      },
+      "plugins": ["contextmenu", "dnd", "types"],
+      "contextmenu": {
+        "items": function (node) {
+          let tree = $("#arbolProblemas").jstree(true);
+          return {
+            "Agregar": {
+              "label": "➕ Agregar Nodo",
+              "action": function () {
+                let nuevo = tree.create_node(node, { "text": "Nuevo nodo" });
+                tree.edit(nuevo);
+              }
+            },
+            "Editar": {
+              "label": "✏️ Editar Nodo",
+              "action": function () {
+                tree.edit(node);
+              }
+            },
+            "Eliminar": {
+              "label": "🗑 Eliminar Nodo",
+              "_disabled": node.id === "problema_central" || node.id === "causas" || node.id === "efectos",
+              "action": function () {
+                tree.delete_node(node);
+              }
+            }
+          };
+        }
+      }
+    });
+  });
+
+  function exportarArbol() {
+    const arbol = $('#arbolProblemas').jstree(true).get_json('#', { flat: false });
+    const arbolLimpio = limpiarNodos(arbol);
+    document.getElementById("jsonSalida").textContent = JSON.stringify(arbolLimpio, null, 2);
+    document.getElementById("jsonSalida").classList.remove("d-none");
+  }
+
+  function descargarArbol() {
+    const arbol = $('#arbolProblemas').jstree(true).get_json('#', { flat: false });
+    const arbolLimpio = limpiarNodos(arbol);
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(arbolLimpio, null, 2));
+    const downloadAnchor = document.createElement('a');
+    downloadAnchor.setAttribute("href", dataStr);
+    downloadAnchor.setAttribute("download", "arbol_problemas.json");
+    document.body.appendChild(downloadAnchor);
+    downloadAnchor.click();
+    document.body.removeChild(downloadAnchor);
+  }
+
+  function descargarPDF() {
+    html2canvas(document.querySelector("#arbolProblemas")).then(canvas => {
+      const { jsPDF } = window.jspdf;
+      const pdf = new jsPDF();
+      const imgData = canvas.toDataURL("image/png");
+      const imgProps = pdf.getImageProperties(imgData);
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+      pdf.addImage(imgData, "PNG", 0, 10, pdfWidth, pdfHeight);
+      pdf.save("arbol_problemas.pdf");
+    });
+  }
+
+  function guardarArbolProblemas() {
+    const arbol = $('#arbolProblemas').jstree(true).get_json('#', { flat: false });
+    const arbolLimpio = limpiarNodos(arbol);
+    localStorage.setItem('arbol_problemas', JSON.stringify(arbolLimpio));
+    alert('Árbol guardado en tu navegador (localStorage)');
+  }
+
+  function reiniciarArbol() {
+    $('#arbolProblemas').jstree(true).settings.core.data = JSON.parse(JSON.stringify(dataInicial));
+    $('#arbolProblemas').jstree(true).refresh();
+    document.getElementById("jsonSalida").classList.add("d-none");
+  }
+</script>
+{% endblock %}

@@ -1,0 +1,172 @@
+{% extends 'base.html' %}
+
+{% block title %}Marco Lógico{% endblock %}
+
+{% block content %}
+<div class="container mb-5">
+  <div class="text-center mb-4">
+    <h1 class="fw-bold">Matriz de Marco Lógico</h1>
+    <p class="text-muted">Esta sección sirve para capturar los objetivos, actividades e indicadores.</p>
+  </div>
+
+  <div class="table-responsive mb-4">
+    <table id="tablaMarcoLogico" class="table table-bordered align-middle text-center shadow-sm">
+      <thead class="table-primary">
+        <tr>
+          <th>Fin</th>
+          <th>Propósito</th>
+          <th>Componentes</th>
+          <th>Actividades</th>
+        </tr>
+      </thead>
+      <tbody id="tablaCuerpo">
+        <tr>
+          <td contenteditable="true"></td>
+          <td contenteditable="true"></td>
+          <td contenteditable="true"></td>
+          <td contenteditable="true"></td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="d-flex gap-2 flex-wrap">
+      <button onclick="agregarFila()" class="btn btn-outline-success">➕ Agregar fila</button>
+      <button onclick="guardarLocal()" class="btn btn-success">💾 Guardar localmente</button>
+      <button onclick="cargarLocal()" class="btn btn-primary">📥 Cargar guardado</button>
+      <button onclick="limpiarTabla()" class="btn btn-danger">🗑 Limpiar</button>
+      <button onclick="convertirProblemasEnObjetivos()" class="btn btn-warning">🌳 Generar Árbol de Objetivos</button>
+      <button onclick="descargarEnWord()" class="btn btn-info">📄 Descargar en Word</button>
+    </div>
+  </div>
+
+  <section class="card card-custom p-4">
+    <h2 class="fw-bold">Importancia del Marco Lógico</h2>
+    <p>
+      El Marco Lógico es una herramienta fundamental para la planificación, seguimiento y evaluación de proyectos. Permite organizar de forma clara los objetivos, actividades e indicadores, facilitando la comunicación y comprensión entre los involucrados. Además, ayuda a identificar relaciones causa-efecto, priorizar acciones y garantizar que los recursos se utilicen de manera eficiente y efectiva, maximizando el impacto social y el cumplimiento de metas.
+    </p>
+    <p>
+      En la administración pública municipal, su uso promueve la transparencia, mejora la toma de decisiones y contribuye a la rendición de cuentas, fortaleciendo la confianza ciudadana en las instituciones.
+    </p>
+  </section>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function agregarFila() {
+  const tabla = document.getElementById('tablaCuerpo');
+  const fila = document.createElement('tr');
+  for (let i = 0; i < 4; i++) {
+    const celda = document.createElement('td');
+    celda.contentEditable = "true";
+    fila.appendChild(celda);
+  }
+  tabla.appendChild(fila);
+}
+
+function guardarLocal() {
+  const filas = document.querySelectorAll('#tablaCuerpo tr');
+  const datos = [];
+  filas.forEach(fila => {
+    const celdas = fila.querySelectorAll('td');
+    const filaData = Array.from(celdas).map(celda => celda.textContent.trim());
+    datos.push(filaData);
+  });
+  localStorage.setItem('marco_logico', JSON.stringify(datos));
+  alert('✅ Datos guardados en tu navegador.');
+}
+
+function cargarLocal() {
+  const datos = JSON.parse(localStorage.getItem('marco_logico') || '[]');
+  const tabla = document.getElementById('tablaCuerpo');
+  tabla.innerHTML = '';
+  datos.forEach(filaData => {
+    const fila = document.createElement('tr');
+    filaData.forEach(texto => {
+      const celda = document.createElement('td');
+      celda.contentEditable = "true";
+      celda.textContent = texto;
+      fila.appendChild(celda);
+    });
+    tabla.appendChild(fila);
+  });
+}
+
+function limpiarTabla() {
+  if (confirm('¿Deseas borrar todos los datos de la tabla?')) {
+    document.getElementById('tablaCuerpo').innerHTML =
+      '<tr><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td></tr>';
+    localStorage.removeItem('marco_logico');
+  }
+}
+
+// 🧠 Convertir árbol de problemas en árbol de objetivos
+function convertirProblemasEnObjetivos() {
+  const arbolProblemas = JSON.parse(localStorage.getItem('arbol_problemas') || '[]');
+  if (!arbolProblemas.length) {
+    alert("⚠️ No se encontró un Árbol de Problemas guardado.");
+    return;
+  }
+
+  const objetivos = [];
+
+  function recorrer(nodos) {
+    nodos.forEach(nodo => {
+      const texto = nodo.text || "";
+      if (texto.toLowerCase().includes("problema")) return;
+
+      const objetivo = texto
+        .replace(/falta de|déficit de|escasez de|carencia de/gi, "garantizar")
+        .replace(/problema|ineficiencia|deficiencia/gi, "mejorar")
+        .replace(/[^a-zA-ZáéíóúñÁÉÍÓÚÑ ]/g, "").trim();
+
+      if (objetivo.length > 5) {
+        objetivos.push(objetivo.charAt(0).toUpperCase() + objetivo.slice(1));
+      }
+
+      if (nodo.children && nodo.children.length) {
+        recorrer(nodo.children);
+      }
+    });
+  }
+
+  recorrer(arbolProblemas);
+
+  const tabla = document.getElementById('tablaCuerpo');
+  tabla.innerHTML = '';
+
+  objetivos.forEach(obj => {
+    const fila = document.createElement('tr');
+    ["", obj, "", ""].forEach((texto, i) => {
+      const celda = document.createElement('td');
+      celda.contentEditable = "true";
+      celda.textContent = texto;
+      fila.appendChild(celda);
+    });
+    tabla.appendChild(fila);
+  });
+
+  alert("✅ Árbol de Objetivos generado a partir del Árbol de Problemas.");
+}
+
+// 📄 Descargar tabla en Word
+function descargarEnWord() {
+  const tabla = document.getElementById("tablaMarcoLogico").outerHTML;
+  const estilo = `
+    <style>
+      table { border-collapse: collapse; width: 100%; font-family: Arial; }
+      th, td { border: 1px solid black; padding: 8px; text-align: center; }
+      th { background-color: #cce5ff; }
+    </style>
+  `;
+  const html = `<!DOCTYPE html><html><head><meta charset="UTF-8">${estilo}</head><body>${tabla}</body></html>`;
+  const blob = new Blob(["\ufeff", html], { type: "application/msword" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = "marco_logico.doc";
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
+</script>
+{% endblock %}

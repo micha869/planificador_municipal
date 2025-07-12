@@ -1,0 +1,192 @@
+{% extends 'base.html' %}
+
+{% block title %}Árbol & Marco & Objetivos{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.3.12/themes/default/style.min.css" />
+<style>
+  .flex-row { display: flex; gap: 1rem; }
+  .panel { flex: 1; border: 1px solid #ddd; border-radius: .25rem; padding: 1rem; }
+  .panel h3 { margin-top: 0; }
+  #arbolObjetivos { min-height: 300px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <h1 class="text-center mb-4">Árbol de Problemas &amp; Marco Lógico &amp; Objetivos</h1>
+
+  <div class="flex-row mb-4">
+    <!-- PANEL ÁRBOL DE PROBLEMAS -->
+    <div class="panel">
+      <h3>Árbol de Problemas</h3>
+      <div id="arbolProblemas"></div>
+      <div class="mt-2">
+        <button class="btn btn-sm btn-success" onclick="guardarArbol()">Guardar Árbol</button>
+      </div>
+    </div>
+
+    <!-- PANEL MARCO LÓGICO -->
+    <div class="panel">
+      <h3>Matriz de Marco Lógico</h3>
+      <div class="table-responsive mb-2">
+        <table id="tablaMarcoLogico" class="table table-bordered text-center">
+          <thead class="table-primary">
+            <tr><th>Fin</th><th>Propósito</th><th>Componentes</th><th>Actividades</th></tr>
+          </thead>
+          <tbody id="tablaCuerpo">
+            <tr>
+              <td contenteditable="true"></td>
+              <td contenteditable="true"></td>
+              <td contenteditable="true"></td>
+              <td contenteditable="true"></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="d-flex gap-2 mb-2">
+        <button class="btn btn-outline-success btn-sm" onclick="agregarFila()">➕ Fila</button>
+        <button class="btn btn-warning btn-sm" onclick="llenarPropositos()">▶ Copiar Causas → Propósitos</button>
+        <button class="btn btn-info btn-sm" onclick="generarArbolObjetivos()">🌳 Generar Árbol de Objetivos</button>
+      </div>
+      <div class="d-flex gap-2">
+        <button class="btn btn-secondary btn-sm" onclick="descargarWord()">📝 Descargar Word</button>
+        <button class="btn btn-secondary btn-sm" onclick="descargarPDF()">📄 Descargar PDF</button>
+      </div>
+    </div>
+
+    <!-- PANEL ÁRBOL DE OBJETIVOS -->
+    <div class="panel">
+      <h3>Árbol de Objetivos</h3>
+      <div id="arbolObjetivos"></div>
+      <div class="mt-2">
+        <button class="btn btn-sm btn-success" onclick="exportarObjetivos()">📤 Exportar JSON</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ✅ Botón de regresar -->
+  <div class="text-center mt-5">
+    <a href="{{ url_for('index') }}" class="btn btn-outline-primary btn-lg">
+      ⬅ Regresar al Menú Principal
+    </a>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.3.12/jstree.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html-docx-js/0.4.1/html-docx.min.js"></script>
+
+<script>
+// 1) Init árbol de problemas
+const dataInicial = [{
+  id: "root",
+  text: "Problema Central",
+  state: { opened: true },
+  children: [
+    { text: "Causas", children: [{ text: "Falta de transporte" }, { text: "Déficit de recursos" }] },
+    { text: "Efectos", children: [{ text: "Bajo nivel educativo" }] }
+  ]
+}];
+
+$(function(){
+  $('#arbolProblemas').jstree({
+    core: { check_callback: true, data: dataInicial },
+    plugins: ["contextmenu","dnd"],
+    contextmenu: { items: node => {
+      const tree = $('#arbolProblemas').jstree(true);
+      return {
+        Agregar: { label: "Agregar", action:()=>{ const id = tree.create_node(node,{text:"Nuevo nodo"}); tree.edit(id);} },
+        Editar:  { label: "Editar",  action:()=>tree.edit(node) },
+        Eliminar:{ label: "Eliminar", _disabled: node.id==="root", action:()=>tree.delete_node(node) }
+      };
+    }}
+  });
+  $('#arbolObjetivos').jstree({ core:{ data: [] } });
+});
+
+function guardarArbol(){
+  const arbol = $('#arbolProblemas').jstree(true).get_json('#',{flat:false});
+  localStorage.setItem('arbol_problemas', JSON.stringify(arbol));
+  alert('Árbol de Problemas guardado');
+}
+
+function llenarPropositos(){
+  const arbol = $('#arbolProblemas').jstree(true).get_json('#',{flat:false});
+  const causas = arbol[0].children.find(n=>n.text==="Causas")?.children||[];
+  const tbody = $('#tablaCuerpo').empty();
+  causas.forEach(c=>{
+    tbody.append(`<tr>
+      <td contenteditable="true"></td>
+      <td contenteditable="true">${c.text.replace(/falta de|déficit de/gi,'garantizar')}</td>
+      <td contenteditable="true"></td>
+      <td contenteditable="true"></td>
+    </tr>`);
+  });
+}
+
+function agregarFila(){
+  const tbody = document.getElementById('tablaCuerpo');
+  const tr = document.createElement('tr');
+  for(let i=0;i<4;i++){
+    const td = document.createElement('td');
+    td.contentEditable = "true";
+    tr.appendChild(td);
+  }
+  tbody.appendChild(tr);
+}
+
+function generarArbolObjetivos(){
+  const rows = $('#tablaCuerpo tr');
+  const objetivos = rows.map((i,tr)=>{
+    const texto = $(tr).find('td').eq(1).text().trim();
+    return { text: texto, state: { opened: true }, children: [] };
+  }).get().filter(o => o.text);
+  $('#arbolObjetivos').jstree(true).settings.core.data = [{
+    text: "Objetivos",
+    state: { opened: true },
+    children: objetivos
+  }];
+  $('#arbolObjetivos').jstree(true).refresh();
+}
+
+function exportarObjetivos(){
+  const data = $('#arbolObjetivos').jstree(true).get_json('#',{flat:false});
+  prompt("JSON del Árbol de Objetivos:", JSON.stringify(data,null,2));
+}
+
+function descargarWord(){
+  const html = `<!DOCTYPE html><html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word'><head><meta charset='utf-8'><title>Marco</title></head><body>${document.querySelector('.container').outerHTML}</body></html>`;
+  const blob = htmlDocx.asBlob(html);
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'documento.docx';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+}
+
+function descargarPDF(){
+  html2canvas(document.querySelector('.container')).then(canvas => {
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF();
+    const img = canvas.toDataURL('image/png');
+    pdf.addImage(img,'PNG',0,0,pdf.internal.pageSize.getWidth(),pdf.internal.pageSize.getHeight());
+    pdf.save('documento.pdf');
+  });
+}
+</script>
+
+{% if 'usuario' not in session %}
+<script>
+  setTimeout(function() {
+    window.location.href = "{{ url_for('index') }}";
+  }, 5000);
+</script>
+{% endif %}
+{% endblock %}
