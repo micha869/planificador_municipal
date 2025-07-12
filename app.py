@@ -7,7 +7,8 @@ import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), 'modulos'))
 from generador_plan import generar_plan_pdf
 from diagnostico import obtener_diagnostico
-from chatbot_pdf import obtener_respuesta_pregunta  # Asegúrate de tener este módulo
+from modulos.chatbot_pdf import obtener_respuesta_pregunta
+
 
 app = Flask(__name__)
 app.secret_key = "clave_super_secreta"
