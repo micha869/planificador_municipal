@@ -3,16 +3,28 @@
   <h4 class="text-info">{{ modulo.titulo }}</h4>
   <p>{{ modulo.descripcion }}</p>
 
-  <!-- Video como iframe (enlace simulado, reemplaza ID_VIDEO_...) -->
-  <div class="ratio ratio-16x9 mb-3">
-    {% if loop.index == 1 %}
-      <iframe src="https://youtu.be/-P2vSpnVtBU?si=pZExF3QCTu2y3G3E" title="Introducción al Marco Lógico" allowfullscreen></iframe>
-    {% elif loop.index == 2 %}
-      <iframe src="https://youtu.be/1va3Rs9lVGU?si=bssNBUAWzJlucPPe" title="Teoría del Marco Lógico" allowfullscreen></iframe>
-    {% elif loop.index == 3 %}
-      <iframe src="https://youtu.be/hzIsxXPeCwU?si=S8NHmBjAVZ5T0-T-" title="Cómo hacer un proyecto" allowfullscreen></iframe>
-    {% endif %}
-  </div>
+ <div class="ratio ratio-16x9 mb-3">
+  {% if loop.index == 1 %}
+    <iframe 
+      src="https://www.youtube.com/embed/-P2vSpnVtBU" 
+      title="Introducción al Marco Lógico" 
+      allowfullscreen>
+    </iframe>
+  {% elif loop.index == 2 %}
+    <iframe 
+      src="https://www.youtube.com/embed/1va3Rs9lVGU" 
+      title="Teoría del Marco Lógico" 
+      allowfullscreen>
+    </iframe>
+  {% elif loop.index == 3 %}
+    <iframe 
+      src="https://www.youtube.com/embed/hzIsxXPeCwU" 
+      title="Cómo hacer un proyecto" 
+      allowfullscreen>
+    </iframe>
+  {% endif %}
+</div>
+
 
   <a href="{{ url_for('static', filename=modulo.pdf) }}" class="btn btn-outline-success" download>
     📥 Descargar material PDF
