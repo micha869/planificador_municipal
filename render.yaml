@@ -2,8 +2,6 @@ services:
   - type: web
     name: planificador-municipal
     env: python
-    buildCommand: ""
-    startCommand: gunicorn app:app
-    envVars:
-      - key: FLASK_ENV
-        value: production
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "gunicorn app:app"
+    runtime: python 3.11.4
