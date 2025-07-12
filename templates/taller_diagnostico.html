@@ -10,10 +10,13 @@
     <section class="mb-5">
       <h4 class="text-info">🎬 Video Explicativo</h4>
       <p>En este taller aprenderás a realizar un diagnóstico municipal utilizando datos reales e interpretación técnica.</p>
-      <video controls class="w-100 rounded mb-3">
-        <source src="{{ url_for('static', filename='videos/taller_diagnostico.mp4') }}" type="video/mp4">
-        Tu navegador no soporta la reproducción de video.
-      </video>
+      <div class="ratio ratio-16x9 mb-3">
+        <iframe 
+          src="https://youtu.be/fw48mN-z5o0?si=4p1Shig7gep-zdMj" 
+          title="Video Diagnóstico Municipal" 
+          allowfullscreen>
+        </iframe>
+      </div>
     </section>
 
     <!-- Botón para descargar PDF -->

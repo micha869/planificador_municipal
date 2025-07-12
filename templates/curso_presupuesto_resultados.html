@@ -10,10 +10,20 @@
     <section class="mb-5 modulo-curso">
       <h4 class="text-info">{{ modulo.titulo }}</h4>
       <p>{{ modulo.descripcion }}</p>
-      <video controls class="w-100 rounded mb-3">
-        <source src="{{ url_for('static', filename=modulo.video) }}" type="video/mp4">
-        Tu navegador no soporta el video.
-      </video>
+
+      <!-- Sustituye los siguientes enlaces por tus IDs reales de YouTube -->
+      <div class="ratio ratio-16x9 mb-3">
+        {% if loop.index == 1 %}
+          <iframe src="https://youtu.be/JLkyP0JFHyw?si=YRdgCMBodyrl5oP4" title="Video módulo 1" allowfullscreen></iframe>
+        {% elif loop.index == 2 %}
+          <iframe src="https://youtu.be/X6qBZiwN8OY?si=vBeee5rfR_2vwSJh" title="Video módulo 2" allowfullscreen></iframe>
+        {% elif loop.index == 3 %}
+          <iframe src="https://youtu.be/FqqzTicn0mI?si=KTv4pY5ock9Dr_iI" title="Video módulo 3" allowfullscreen></iframe>
+        {% else %}
+          <iframe src="https://youtu.be/Ju7_vodqDZU?si=ygOBSmgqQR7ehipH " title="Video módulo adicional" allowfullscreen></iframe>
+        {% endif %}
+      </div>
+
       <a href="{{ url_for('static', filename=modulo.pdf) }}" class="btn btn-outline-success" download>
         📥 Descargar material PDF
       </a>

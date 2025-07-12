@@ -22,7 +22,6 @@
       <li class="list-group-item">✅ Ejercicios prácticos y evaluación final</li>
     </ul>
     <a href="{{ url_for('dashboard') }}" class="btn btn-primary btn-lg">Acceder al Curso</a>
-
   </div>
 </div>
 
@@ -40,13 +39,15 @@
     <p>Constancia digital al finalizar con aprovechamiento</p>
   </div>
 </div>
+
 <h3 class="text-center">🎥 Vista previa del curso</h3>
 <div class="ratio ratio-16x9 mb-4">
-  <video controls>
-    <source src="{{ url_for('static', filename='videos/video_promocional.mp4') }}" type="video/mp4">
-    Tu navegador no admite el video HTML5.
-  </video>
+  <iframe 
+    src="https://youtu.be/RphP40zkY40?si=Lrl2cRzsSen4qR7i" 
+    title="Video promocional del curso"
+    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+    allowfullscreen>
+  </iframe>
 </div>
-
 
 {% endblock %}
