@@ -118,10 +118,26 @@ def arbol_marco():
 @app.route('/cursos')
 def cursos():
     return render_template('cursos.html')
-
 @app.route('/curso_marco_logico')
 def curso_marco_logico():
-    return render_template('curso_marco_logico.html')
+    modulos = [
+        {
+            "titulo": "📘 Introducción al Marco Lógico",
+            "descripcion": "Breve presentación del concepto y utilidad del Marco Lógico.",
+            "pdf": "pdfs/introduccion_marco_logico.pdf"
+        },
+        {
+            "titulo": "📗 Teoría del Marco Lógico",
+            "descripcion": "Elementos teóricos detrás del Marco Lógico.",
+            "pdf": "pdfs/teoria_marco_logico.pdf"
+        },
+        {
+            "titulo": "📙 Cómo hacer un proyecto",
+            "descripcion": "Aplicación práctica para formular un proyecto paso a paso.",
+            "pdf": "pdfs/como_hacer_un_proyecto.pdf"
+        }
+    ]
+    return render_template('curso_marco_logico.html', modulos=modulos)
 
 @app.route('/plan')
 def plan_generado():
