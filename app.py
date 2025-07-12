@@ -3,17 +3,15 @@ import json
 import os
 import sys
 
-
-# Agregar carpeta 'modulos' al path
+# Agregar carpeta 'modulos' al path para importar módulos personalizados
 sys.path.append(os.path.join(os.path.dirname(__file__), 'modulos'))
 from generador_plan import generar_plan_pdf
 from diagnostico import obtener_diagnostico
-
-
-
+from chatbot_pdf import obtener_respuesta_pregunta  # Asegúrate de tener este módulo
 
 app = Flask(__name__)
 app.secret_key = "clave_super_secreta"
+
 UPLOAD_FOLDER = 'static/uploads'
 ALLOWED_EXTENSIONS = {'pdf', 'docx', 'mp4'}
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
@@ -84,7 +82,7 @@ def dashboard():
         with open('usuarios_autorizados.json', 'r') as f:
             usuarios_autorizados = json.load(f)
         autorizado = correo in usuarios_autorizados
-    except:
+    except FileNotFoundError:
         autorizado = False
 
     return render_template('dashboard.html', autorizado=autorizado)
@@ -97,6 +95,7 @@ def diagnostico():
     if os.path.exists(ruta):
         with open(ruta, 'r', encoding='utf-8') as f:
             datos = json.load(f)
+            # OJO: datos debe tener estructura esperada, si no puede fallar
             municipios = [{"clave": clave, "nombre": info["municipio"]} for clave, info in datos.items()]
     if request.method == 'POST':
         clave = request.form['municipio']
@@ -190,15 +189,22 @@ def admin_taller_diagnostico():
     if request.method == 'POST':
         titulo = request.form['titulo']
         descripcion = request.form['descripcion']
-        video = request.files['video']
-        pdf = request.files['pdf']
+        video = request.files.get('video', None)
+        pdf = request.files.get('pdf', None)
 
-        if video:
+        if video and archivo_permitido(video.filename):
             video_path = os.path.join('static/videos', video.filename)
             video.save(video_path)
-        if pdf:
+        else:
+            flash('Video inválido o no seleccionado')
+            return redirect(url_for('admin_taller_diagnostico'))
+
+        if pdf and archivo_permitido(pdf.filename):
             pdf_path = os.path.join('static/pdfs', pdf.filename)
             pdf.save(pdf_path)
+        else:
+            flash('PDF inválido o no seleccionado')
+            return redirect(url_for('admin_taller_diagnostico'))
 
         nuevo_modulo = {
             "titulo": titulo,
@@ -218,9 +224,9 @@ def admin_taller_diagnostico():
 
 def _descargar_archivo(nombre, as_attachment=True):
     return send_from_directory('data', nombre, as_attachment=as_attachment)
+
 @app.route('/curso_presupuesto_resultados', methods=['GET', 'POST'])
 def curso_presupuesto_resultados():
-    # Lista de módulos ejemplo (puedes cambiarlo)
     modulos_pbr = [
         {
             'titulo': '💰 Introducción al PbR',
@@ -229,7 +235,7 @@ def curso_presupuesto_resultados():
             'pdf': 'pdfs/introduccion_pbr.pdf'
         },
     ]
-    
+
     if request.method == 'POST':
         if 'archivo' not in request.files:
             flash('No se seleccionó ningún archivo')
@@ -242,8 +248,9 @@ def curso_presupuesto_resultados():
         archivo.save(ruta_guardado)
         flash('Archivo subido con éxito')
         return redirect(url_for('curso_presupuesto_resultados'))
-    
+
     return render_template('curso_presupuesto_resultados.html', modulos_pbr=modulos_pbr)
+
 @app.route('/evaluacion_desempeno')
 def evaluacion_desempeno():
     return render_template('evaluacion_desempeno.html')
@@ -251,9 +258,11 @@ def evaluacion_desempeno():
 @app.route("/marco-juridico")
 def marco_juridico():
     return render_template("marco_juridico.html")
+
 @app.route('/chat')
 def chatbot():
     return render_template('chat.html')
+
 @app.route('/chat', methods=['POST'])
 def chat():
     data = request.get_json()
@@ -270,8 +279,7 @@ def chat():
 
     respuesta = obtener_respuesta_pregunta(pregunta, documentos)
     return {'response': respuesta}
+
 if __name__ == '__main__':
-    import os
     port = int(os.environ.get('PORT', 5000))
     app.run(host='0.0.0.0', port=port)
-
