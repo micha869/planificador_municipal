@@ -5,3 +5,4 @@ venv/
 *.mkv
 *.zip
 *.rar
+modulos/chatbot_pdf.py
