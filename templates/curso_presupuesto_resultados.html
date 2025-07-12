@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+
 {% block title %}Curso: Presupuesto basado en Resultados{% endblock %}
 
 {% block content %}
@@ -11,18 +12,17 @@
       <h4 class="text-info">{{ modulo.titulo }}</h4>
       <p>{{ modulo.descripcion }}</p>
 
-     <div class="ratio ratio-16x9 mb-3">
-  {% if loop.index == 1 %}
-    <iframe src="https://www.youtube.com/embed/JLkyP0JFHyw" title="Video módulo 1" allowfullscreen></iframe>
-  {% elif loop.index == 2 %}
-    <iframe src="https://www.youtube.com/embed/X6qBZiwN8OY" title="Video módulo 2" allowfullscreen></iframe>
-  {% elif loop.index == 3 %}
-    <iframe src="https://www.youtube.com/embed/FqqzTicn0mI" title="Video módulo 3" allowfullscreen></iframe>
-  {% else %}
-    <iframe src="https://www.youtube.com/embed/Ju7_vodqDZU" title="Video módulo adicional" allowfullscreen></iframe>
-  {% endif %}
-</div>
-
+      <div class="ratio ratio-16x9 mb-3">
+        {% if loop.index == 1 %}
+          <iframe src="https://www.youtube.com/embed/JLkyP0JFHyw" title="Video módulo 1" allowfullscreen></iframe>
+        {% elif loop.index == 2 %}
+          <iframe src="https://www.youtube.com/embed/X6qBZiwN8OY" title="Video módulo 2" allowfullscreen></iframe>
+        {% elif loop.index == 3 %}
+          <iframe src="https://www.youtube.com/embed/FqqzTicn0mI" title="Video módulo 3" allowfullscreen></iframe>
+        {% else %}
+          <iframe src="https://www.youtube.com/embed/Ju7_vodqDZU" title="Video módulo adicional" allowfullscreen></iframe>
+        {% endif %}
+      </div>
 
       <a href="{{ url_for('static', filename=modulo.pdf) }}" class="btn btn-outline-success" download>
         📥 Descargar material PDF
