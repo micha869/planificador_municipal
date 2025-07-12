@@ -260,9 +260,6 @@ def evaluacion_desempeno():
 def marco_juridico():
     return render_template("marco_juridico.html")
 
-@app.route('/chat')
-def chatbot():
-    return render_template('chat.html')
 
 
 if __name__ == '__main__':
