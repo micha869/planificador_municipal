@@ -1,46 +1,41 @@
-{% for modulo in modulos %}
-<section class="mb-5 modulo-curso" data-id="{{ loop.index }}">
-  <h4 class="text-info">{{ modulo.titulo }}</h4>
-  <p>{{ modulo.descripcion }}</p>
+{% extends "base.html" %}
 
- <div class="ratio ratio-16x9 mb-3">
-  {% if loop.index == 1 %}
-    <iframe 
-      src="https://www.youtube.com/embed/-P2vSpnVtBU" 
-      title="Introducción al Marco Lógico" 
-      allowfullscreen>
-    </iframe>
-  {% elif loop.index == 2 %}
-    <iframe 
-      src="https://www.youtube.com/embed/1va3Rs9lVGU" 
-      title="Teoría del Marco Lógico" 
-      allowfullscreen>
-    </iframe>
-  {% elif loop.index == 3 %}
-    <iframe 
-      src="https://www.youtube.com/embed/hzIsxXPeCwU" 
-      title="Cómo hacer un proyecto" 
-      allowfullscreen>
-    </iframe>
-  {% endif %}
+{% block title %}Curso: Marco Lógico{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <h1 class="text-center mb-5">📘 Curso: Marco Lógico aplicado al Desarrollo Municipal</h1>
+
+  {% for modulo in modulos %}
+  <section class="mb-5 p-4 card-custom">
+    <h3>{{ modulo.titulo }}</h3>
+    <p>{{ modulo.descripcion }}</p>
+
+    <div class="ratio ratio-16x9 mb-3">
+      {% if loop.index == 1 %}
+        <iframe src="https://www.youtube.com/embed/-P2vSpnVtBU" title="Introducción al Marco Lógico" allowfullscreen></iframe>
+      {% elif loop.index == 2 %}
+        <iframe src="https://www.youtube.com/embed/1va3Rs9lVGU" title="Teoría del Marco Lógico" allowfullscreen></iframe>
+      {% elif loop.index == 3 %}
+        <iframe src="https://www.youtube.com/embed/hzIsxXPeCwU" title="Cómo hacer un proyecto" allowfullscreen></iframe>
+      {% endif %}
+    </div>
+
+    <a href="{{ url_for('static', filename=modulo.pdf) }}" class="btn btn-outline-success mb-3" download>
+      📥 Descargar material PDF
+    </a>
+
+    <div class="form-check mb-3">
+      <input class="form-check-input modulo-check" type="checkbox" value="{{ loop.index }}" id="modulo{{ loop.index }}">
+      <label class="form-check-label" for="modulo{{ loop.index }}">
+        Marcar como completado
+      </label>
+    </div>
+
+    <a href="{{ url_for('dashboard') }}" class="btn btn-primary-custom">
+      ⬅️ Regresar al Dashboard
+    </a>
+  </section>
+  {% endfor %}
 </div>
-
-
-  <a href="{{ url_for('static', filename=modulo.pdf) }}" class="btn btn-outline-success" download>
-    📥 Descargar material PDF
-  </a>
-
-  <div class="form-check mt-3">
-    <input class="form-check-input modulo-check" type="checkbox" value="{{ loop.index }}" id="modulo{{ loop.index }}">
-    <label class="form-check-label" for="modulo{{ loop.index }}">
-      Marcar como completado
-    </label>
-  </div>
-</section>
-<div class="text-center mt-4">
-  <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">
-    ⬅️ Regresar al Dashboard
-  </a>
-</div>
-
-{% endfor %}
+{% endblock %}
