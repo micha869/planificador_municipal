@@ -7,7 +7,7 @@ import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), 'modulos'))
 from generador_plan import generar_plan_pdf
 from diagnostico import obtener_diagnostico
-from modulos.chatbot_pdf import obtener_respuesta_pregunta
+
 
 
 app = Flask(__name__)
@@ -264,22 +264,6 @@ def marco_juridico():
 def chatbot():
     return render_template('chat.html')
 
-@app.route('/chat', methods=['POST'])
-def chat():
-    data = request.get_json()
-    pregunta = data.get('message', '').strip()
-
-    if not pregunta:
-        return {'response': '❌ Por favor, escribe una pregunta válida.'}
-
-    carpeta = 'documentos'
-    documentos = [os.path.join(carpeta, f) for f in os.listdir(carpeta) if f.endswith('.pdf')]
-
-    if not documentos:
-        return {'response': '⚠️ No hay documentos cargados para responder.'}
-
-    respuesta = obtener_respuesta_pregunta(pregunta, documentos)
-    return {'response': respuesta}
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
