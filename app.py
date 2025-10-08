@@ -8,22 +8,64 @@ sys.path.append(os.path.join(os.path.dirname(__file__), 'modulos'))
 from generador_plan import generar_plan_pdf
 from diagnostico import obtener_diagnostico
 
+from sqlalchemy import create_engine, text
+from dotenv import load_dotenv
+from werkzeug.security import generate_password_hash, check_password_hash
 
+# OAuth2
+from flask_dance.contrib.google import make_google_blueprint, google
+from flask_dance.contrib.facebook import make_facebook_blueprint, facebook
+
+from datetime import timedelta
+
+# ------------------- CONFIG -------------------
+load_dotenv()
 
 app = Flask(__name__)
-app.secret_key = "clave_super_secreta"
+app.secret_key = os.getenv("FLASK_SECRET_KEY", "clave_super_secreta")
+
+# Duración de sesión permanente
+app.permanent_session_lifetime = timedelta(days=30)
 
 UPLOAD_FOLDER = 'static/uploads'
 ALLOWED_EXTENSIONS = {'pdf', 'docx', 'mp4'}
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
-USUARIOS_FILE = "usuarios.json"
-if not os.path.exists(USUARIOS_FILE):
-    with open(USUARIOS_FILE, 'w') as f:
-        json.dump({}, f)
+# ------------------- CONEXIÓN NEON -------------------
+DATABASE_URL = os.getenv("DATABASE_URL") or "postgresql+psycopg2://neondb_owner:npg_mGFOoEDuL96W@ep-snowy-water-adozw9jp-pooler.c-2.us-east-1.aws.neon.tech/neondb?sslmode=require"
+engine = create_engine(DATABASE_URL, echo=True)
 
+# Crear tabla de usuarios si no existe
+with engine.begin() as conn:
+    conn.execute(text("""
+        CREATE TABLE IF NOT EXISTS usuarios (
+            id SERIAL PRIMARY KEY,
+            usuario VARCHAR(100) UNIQUE,
+            contrasena VARCHAR(200),
+            fecha_registro TIMESTAMP DEFAULT NOW()
+        );
+    """))
+
+# ------------------- FUNCIONES -------------------
 def archivo_permitido(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+# ------------------- BLUEPRINTS OAuth -------------------
+google_bp = make_google_blueprint(
+    client_id=os.getenv("GOOGLE_CLIENT_ID"),
+    client_secret=os.getenv("GOOGLE_CLIENT_SECRET"),
+    scope=["profile", "email"],
+    redirect_url="/oauth2/google"
+)
+facebook_bp = make_facebook_blueprint(
+    client_id=os.getenv("FACEBOOK_CLIENT_ID"),
+    client_secret=os.getenv("FACEBOOK_CLIENT_SECRET"),
+    scope=["email"],
+    redirect_url="/oauth2/facebook"
+)
+
+app.register_blueprint(google_bp, url_prefix="/login")
+app.register_blueprint(facebook_bp, url_prefix="/login")
 
 # ------------------- RUTAS -------------------
 
@@ -37,41 +79,82 @@ def logout():
     flash("Sesión cerrada correctamente.")
     return redirect(url_for('index'))
 
+# ---------- Registro tradicional ----------
 @app.route('/registro', methods=['GET', 'POST'])
 def registro():
     if request.method == 'POST':
         usuario = request.form['usuario']
-        contrasena = request.form['contrasena']
-        with open(USUARIOS_FILE, 'r+') as file:
+        contrasena = generate_password_hash(request.form['contrasena'])
+        with engine.begin() as conn:
             try:
-                usuarios = json.load(file)
-            except json.JSONDecodeError:
-                usuarios = {}
-            if usuario in usuarios:
-                flash('Usuario ya registrado')
-            else:
-                usuarios[usuario] = contrasena
-                file.seek(0)
-                json.dump(usuarios, file)
-                file.truncate()
+                conn.execute(text("""
+                    INSERT INTO usuarios (usuario, contrasena) VALUES (:usuario, :contrasena)
+                """), {"usuario": usuario, "contrasena": contrasena})
                 flash('Registro exitoso')
                 return redirect(url_for('login'))
+            except:
+                flash('Usuario ya registrado')
     return render_template('registro.html')
 
+# ---------- Login tradicional ----------
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
         usuario = request.form['usuario']
         contrasena = request.form['contrasena']
-        with open(USUARIOS_FILE) as file:
-            usuarios = json.load(file)
-            if usuario in usuarios and usuarios[usuario] == contrasena:
-                session['usuario'] = usuario
+        with engine.connect() as conn:
+            result = conn.execute(text("SELECT * FROM usuarios WHERE usuario=:usuario"), {"usuario": usuario}).fetchone()
+            if result and check_password_hash(result['contrasena'], contrasena):
+                session.permanent = True        # <-- sesión permanente
+                session['usuario'] = result['usuario']
                 return redirect(url_for('dashboard'))
             else:
                 flash('Credenciales incorrectas')
     return render_template('login.html')
 
+# ---------- Login con Google ----------
+@app.route("/login/google")
+def login_google():
+    if not google.authorized:
+        return redirect(url_for("google.login"))
+    resp = google.get("/oauth2/v2/userinfo")
+    if resp.ok:
+        info = resp.json()
+        usuario = info["email"]
+        with engine.begin() as conn:
+            conn.execute(text("""
+                INSERT INTO usuarios (usuario, contrasena)
+                VALUES (:usuario, '')
+                ON CONFLICT (usuario) DO NOTHING
+            """), {"usuario": usuario})
+        session.permanent = True            # <-- sesión permanente
+        session['usuario'] = usuario
+        return redirect(url_for("dashboard"))
+    flash("No se pudo iniciar sesión con Google")
+    return redirect(url_for("login"))
+
+# ---------- Login con Facebook ----------
+@app.route("/login/facebook")
+def login_facebook():
+    if not facebook.authorized:
+        return redirect(url_for("facebook.login"))
+    resp = facebook.get("/me?fields=id,name,email")
+    if resp.ok:
+        info = resp.json()
+        usuario = info.get("email", info["id"])
+        with engine.begin() as conn:
+            conn.execute(text("""
+                INSERT INTO usuarios (usuario, contrasena)
+                VALUES (:usuario, '')
+                ON CONFLICT (usuario) DO NOTHING
+            """), {"usuario": usuario})
+        session.permanent = True            # <-- sesión permanente
+        session['usuario'] = usuario
+        return redirect(url_for("dashboard"))
+    flash("No se pudo iniciar sesión con Facebook")
+    return redirect(url_for("login"))
+
+# ---------- Dashboard ----------
 @app.route('/dashboard')
 def dashboard():
     if 'usuario' not in session:
@@ -88,6 +171,7 @@ def dashboard():
 
     return render_template('dashboard.html', autorizado=autorizado)
 
+# ---------- Diagnóstico ----------
 @app.route('/diagnostico', methods=['GET', 'POST'])
 def diagnostico():
     resultado = None
@@ -96,12 +180,17 @@ def diagnostico():
     if os.path.exists(ruta):
         with open(ruta, 'r', encoding='utf-8') as f:
             datos = json.load(f)
-            # OJO: datos debe tener estructura esperada, si no puede fallar
             municipios = [{"clave": clave, "nombre": info["municipio"]} for clave, info in datos.items()]
     if request.method == 'POST':
         clave = request.form['municipio']
         resultado = obtener_diagnostico(clave)
     return render_template('diagnostico.html', municipios=municipios, resultado=resultado)
+
+# ---------- Funciones auxiliares y resto de rutas ----------
+def _descargar_archivo(nombre, as_attachment=True):
+    return send_from_directory('data', nombre, as_attachment=as_attachment)
+
+# Puedes agregar aquí tus rutas de arbol, marco-logico, cursos, etc., igual que en tu código original
 
 @app.route('/arbol')
 def arbol():
@@ -118,6 +207,7 @@ def arbol_marco():
 @app.route('/cursos')
 def cursos():
     return render_template('cursos.html')
+
 @app.route('/curso_marco_logico')
 def curso_marco_logico():
     modulos = [
@@ -276,8 +366,7 @@ def evaluacion_desempeno():
 def marco_juridico():
     return render_template("marco_juridico.html")
 
-
-
+# ------------------- MAIN -------------------
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
     app.run(host='0.0.0.0', port=port)
