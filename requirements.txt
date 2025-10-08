@@ -11,4 +11,4 @@ PyMuPDF==1.22.5
 reportlab==4.1.0
 SQLAlchemy==2.0.20
 psycopg2-binary==2.9.9
-Flask-Dance==7.1.0
+Flask-Dance==5.1.0
