@@ -6,3 +6,12 @@ venv/
 *.zip
 *.rar
 modulos/chatbot_pdf.py
+# Archivos de entorno
+.env
+
+# Archivos compilados de Python
+__pycache__/
+*.pyc
+
+# Archivos de uploads o temporales (opcional)
+static/uploads/
