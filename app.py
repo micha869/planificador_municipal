@@ -13,20 +13,26 @@ app.permanent_session_lifetime = timedelta(days=30)
 
 # ------------------- CONEXIÓN NEON -------------------
 # Usando psycopg3 (psycopg[binary]) compatible con Python 3.13
-DATABASE_URL = os.getenv("DATABASE_URL") or "postgresql+psycopg://neondb_owner:npg_mGFOoEDuL96W@ep-snowy-water-adozw9jp-pooler.c-2.us-east-1.aws.neon.tech/neondb?sslmode=require"
-engine = create_engine(DATABASE_URL, echo=True)
+DATABASE_URL = os.getenv(
+    "DATABASE_URL"
+) or "postgresql+psycopg://neondb_owner:npg_mGFOoEDuL96W@ep-snowy-water-adozw9jp-pooler.c-2.us-east-1.aws.neon.tech/neondb?sslmode=require"
+
+engine = create_engine(DATABASE_URL, echo=True, future=True)
 
 # Crear tabla de usuarios si no existe
 with engine.begin() as conn:
-    conn.execute(text("""
+    conn.execute(
+        text(
+            """
         CREATE TABLE IF NOT EXISTS usuarios (
             id SERIAL PRIMARY KEY,
             usuario VARCHAR(100) UNIQUE,
             contrasena VARCHAR(200),
             fecha_registro TIMESTAMP DEFAULT NOW()
         );
-    """))
-
+        """
+        )
+    )
 
 # ------------------- FUNCIONES -------------------
 def archivo_permitido(filename):
