@@ -1,21 +1,7 @@
-from flask import Flask, render_template, request, redirect, url_for, session, flash, send_from_directory
-import json
+from flask import Flask
 import os
-import sys
-
-# Agregar carpeta 'modulos' al path para importar módulos personalizados
-sys.path.append(os.path.join(os.path.dirname(__file__), 'modulos'))
-from generador_plan import generar_plan_pdf
-from diagnostico import obtener_diagnostico
-
-from sqlalchemy import create_engine, text
 from dotenv import load_dotenv
-from werkzeug.security import generate_password_hash, check_password_hash
-
-# OAuth2
-from flask_dance.contrib.google import make_google_blueprint, google
-from flask_dance.contrib.facebook import make_facebook_blueprint, facebook
-
+from sqlalchemy import create_engine, text
 from datetime import timedelta
 
 # ------------------- CONFIG -------------------
@@ -23,16 +9,11 @@ load_dotenv()
 
 app = Flask(__name__)
 app.secret_key = os.getenv("FLASK_SECRET_KEY", "clave_super_secreta")
-
-# Duración de sesión permanente
 app.permanent_session_lifetime = timedelta(days=30)
 
-UPLOAD_FOLDER = 'static/uploads'
-ALLOWED_EXTENSIONS = {'pdf', 'docx', 'mp4'}
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-
 # ------------------- CONEXIÓN NEON -------------------
-DATABASE_URL = os.getenv("DATABASE_URL") or "postgresql+psycopg2://neondb_owner:npg_mGFOoEDuL96W@ep-snowy-water-adozw9jp-pooler.c-2.us-east-1.aws.neon.tech/neondb?sslmode=require"
+# Usando psycopg3 (psycopg[binary]) compatible con Python 3.13
+DATABASE_URL = os.getenv("DATABASE_URL") or "postgresql+psycopg://neondb_owner:npg_mGFOoEDuL96W@ep-snowy-water-adozw9jp-pooler.c-2.us-east-1.aws.neon.tech/neondb?sslmode=require"
 engine = create_engine(DATABASE_URL, echo=True)
 
 # Crear tabla de usuarios si no existe
@@ -45,6 +26,7 @@ with engine.begin() as conn:
             fecha_registro TIMESTAMP DEFAULT NOW()
         );
     """))
+
 
 # ------------------- FUNCIONES -------------------
 def archivo_permitido(filename):
