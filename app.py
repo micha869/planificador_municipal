@@ -85,17 +85,24 @@ def registro():
     if request.method == 'POST':
         usuario = request.form['usuario']
         contrasena = generate_password_hash(request.form['contrasena'])
-        with engine.begin() as conn:
-            try:
-                conn.execute(text("""
-                    INSERT INTO usuarios (usuario, contrasena) VALUES (:usuario, :contrasena)
-                """), {"usuario": usuario, "contrasena": contrasena})
-                flash('Registro exitoso')
-                return redirect(url_for('login'))
-            except:
-                flash('Usuario ya registrado')
-    return render_template('registro.html')
 
+        try:
+            with engine.begin() as conn:
+                conn.execute(text("""
+                    INSERT INTO usuarios (usuario, contrasena)
+                    VALUES (:usuario, :contrasena)
+                """), {"usuario": usuario, "contrasena": contrasena})
+
+            flash('✅ Registro exitoso, ahora puedes iniciar sesión.', 'success')
+            return redirect(url_for('login'))
+
+        except Exception as e:
+            print("❌ Error al registrar usuario:", e)
+            flash('⚠️ Usuario ya registrado o error en la base de datos.', 'danger')
+            # Rollback automático al salir del bloque
+            return render_template('registro.html')
+
+    return render_template('registro.html')
 # ---------- Login tradicional ----------
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -103,13 +110,19 @@ def login():
         usuario = request.form['usuario']
         contrasena = request.form['contrasena']
         with engine.connect() as conn:
-            result = conn.execute(text("SELECT * FROM usuarios WHERE usuario=:usuario"), {"usuario": usuario}).fetchone()
+            # Usamos .mappings() para obtener diccionarios
+            result = conn.execute(
+                text("SELECT * FROM usuarios WHERE usuario=:usuario"),
+                {"usuario": usuario}
+            ).mappings().fetchone()  # <-- aquí está la corrección
+
             if result and check_password_hash(result['contrasena'], contrasena):
-                session.permanent = True        # <-- sesión permanente
+                session.permanent = True        # sesión permanente
                 session['usuario'] = result['usuario']
+                flash('✅ Has iniciado sesión correctamente.', 'success')
                 return redirect(url_for('dashboard'))
             else:
-                flash('Credenciales incorrectas')
+                flash('⚠️ Credenciales incorrectas.', 'danger')
     return render_template('login.html')
 
 # ---------- Login con Google ----------
