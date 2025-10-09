@@ -17,6 +17,7 @@ DATABASE_URL = os.getenv(
     "DATABASE_URL"
 ) or "postgresql+psycopg://neondb_owner:npg_mGFOoEDuL96W@ep-snowy-water-adozw9jp-pooler.c-2.us-east-1.aws.neon.tech/neondb?sslmode=require"
 
+# Crear motor SQLAlchemy
 engine = create_engine(DATABASE_URL, echo=True, future=True)
 
 # Crear tabla de usuarios si no existe
@@ -24,13 +25,13 @@ with engine.begin() as conn:
     conn.execute(
         text(
             """
-        CREATE TABLE IF NOT EXISTS usuarios (
-            id SERIAL PRIMARY KEY,
-            usuario VARCHAR(100) UNIQUE,
-            contrasena VARCHAR(200),
-            fecha_registro TIMESTAMP DEFAULT NOW()
-        );
-        """
+            CREATE TABLE IF NOT EXISTS usuarios (
+                id SERIAL PRIMARY KEY,
+                usuario VARCHAR(100) UNIQUE,
+                contrasena VARCHAR(200),
+                fecha_registro TIMESTAMP DEFAULT NOW()
+            );
+            """
         )
     )
 
