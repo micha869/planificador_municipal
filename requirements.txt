@@ -26,3 +26,4 @@ pycparser==2.23
 python-dotenv==1.0.1
 reportlab==4.1.0
 psycopg2-binary==2.9.7
+
