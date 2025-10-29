@@ -1,17 +1,28 @@
+# --- ENTORNOS VIRTUALES ---
 venv/
+.env
+
+# --- ARCHIVOS DE VIDEO Y MULTIMEDIA ---
 *.mp4
 *.mov
 *.avi
 *.mkv
 *.zip
 *.rar
-modulos/chatbot_pdf.py
-# Archivos de entorno
-.env
 
-# Archivos compilados de Python
+# --- ARCHIVOS COMPILADOS DE PYTHON ---
 __pycache__/
 *.pyc
+*.pyo
+*.pyd
 
-# Archivos de uploads o temporales (opcional)
+# --- CARPETAS Y ARCHIVOS TEMPORALES ---
 static/uploads/
+static/videos/
+static/pdfs/
+modulos/data/
+*.log
+*.tmp
+
+# --- ARCHIVOS SENSIBLES ---
+modulos/chatbot_pdf.py
