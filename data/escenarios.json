@@ -1,0 +1,9 @@
+[
+    {
+        "id": 1,
+        "nombre": "pavimentacion ",
+        "estrategia": "Mejoramiento urbano",
+        "impacto_directo": 90.0,
+        "impacto_indirecto": 80.0
+    }
+]

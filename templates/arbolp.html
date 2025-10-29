@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+{% block title %}Árbol de Problemas{% endblock %}
+{% block content %}
+<style>
+.arbol-container { display:flex; flex-direction:column; align-items:center; gap:2rem; margin-top:2rem; position:relative; }
+.nivel { display:flex; justify-content:center; flex-wrap:wrap; gap:1rem; transition: all 0.3s ease; }
+.caja { background-color:#eaf6f6; border-left:6px solid #007b83; border-radius:10px; padding:10px 15px; min-width:150px; box-shadow:2px 2px 6px rgba(0,0,0,0.15); text-align:center; position:relative; cursor:text; transition: all 0.2s ease; }
+.caja:hover { transform: scale(1.03); box-shadow:4px 4px 10px rgba(0,0,0,0.25); }
+.caja.problema { background-color:#ffcc80; border-color:#ff9800; font-weight:bold; font-size:1.3em; }
+.caja.efecto { background-color:#b2dfdb; border-color:#009688; }
+.caja.causa { background-color:#bbdefb; border-color:#1976d2; }
+.caja[contenteditable="true"]:focus { outline:2px dashed #007b83; background-color:#fff3cd; }
+.nivel button.add-nodo { padding:2px 6px; font-size:0.9em; margin-left:5px; cursor:pointer; border-radius:5px; border:none; background-color:#007b83; color:white; transition:0.2s; }
+.nivel button.add-nodo:hover { background-color:#005f5f; }
+</style>
+
+<h2 class="text-center text-primary">🌳 Árbol de Problemas - {{ municipio }}</h2>
+<p class="text-center">Haz clic en los textos para editarlos y usa “+” para agregar efectos o causas.</p>
+
+<div id="arbol" class="arbol-container">
+  <div id="nivel-efectos" class="nivel">
+    <button class="add-nodo" onclick="agregarNodo('efecto')">➕ Agregar Efecto</button>
+  </div>
+  <div id="nivel-problema" class="nivel">
+    <div class="caja problema" id="problema-central" contenteditable="true">Problema central</div>
+  </div>
+  <div id="nivel-causas" class="nivel">
+    <button class="add-nodo" onclick="agregarNodo('causa')">➕ Agregar Causa</button>
+  </div>
+</div>
+
+<div class="text-center mt-4">
+  <button class="btn btn-secondary me-2" onclick="limpiarArbol()">🗑 Limpiar</button>
+  <form method="POST" action="{{ url_for('arbolp.exportar_pdf') }}" style="display:inline;" onsubmit="return guardarAntesDeExportar(this);">
+    <input type="hidden" name="municipio" value="{{ municipio }}">
+    <button type="submit" class="btn btn-danger">📄 Exportar a PDF</button>
+  </form>
+  <form method="POST" action="{{ url_for('arbolp.exportar_word') }}" style="display:inline;" onsubmit="return guardarAntesDeExportar(this);">
+    <input type="hidden" name="municipio" value="{{ municipio }}">
+    <button type="submit" class="btn btn-primary">📝 Exportar a Word</button>
+  </form>
+</div>
+
+<script>
+const STORAGE_KEY = 'arbol_problemas_{{ municipio }}';
+
+function crearCaja(tipo, texto){
+  const div = document.createElement('div');
+  div.className = `caja ${tipo}`;
+  div.contentEditable = true;
+  div.innerText = texto || `${tipo.charAt(0).toUpperCase()+tipo.slice(1)} nuevo`;
+  div.addEventListener('input', guardarArbol);
+  return div;
+}
+
+async function guardarArbol(){
+  const problema = document.getElementById('problema-central');
+  const efectos = Array.from(document.getElementById('nivel-efectos').children)
+      .filter(e => !e.classList.contains('add-nodo'))
+      .map(e => ({titulo: e.innerText.trim()}));
+  const causas = Array.from(document.getElementById('nivel-causas').children)
+      .filter(c => !c.classList.contains('add-nodo'))
+      .map(c => ({titulo: c.innerText.trim()}));
+  const datos = {titulo: problema.innerText.trim(), efectos, causas};
+
+  // Guardar localStorage
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(datos));
+
+  // Guardar en servidor
+  try {
+    const res = await fetch("{{ url_for('arbolp.guardar_arbol') }}", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({municipio:"{{ municipio }}", ...datos})
+    });
+    const r = await res.json();
+    console.log(r);
+  } catch(e) {
+    console.error(e);
+  }
+  return true;
+}
+
+async function guardarAntesDeExportar(form){
+  await guardarArbol();
+  return true; // permite enviar el formulario después de guardar
+}
+
+function cargarArbol(){
+  const datos = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+  const problema = document.getElementById('problema-central');
+  problema.innerText = datos.titulo || 'Problema central';
+
+  const efectos = document.getElementById('nivel-efectos');
+  efectos.innerHTML = '<button class="add-nodo" onclick="agregarNodo(\'efecto\')">➕ Agregar Efecto</button>';
+  (datos.efectos || []).forEach(e => efectos.appendChild(crearCaja('efecto', e.titulo)));
+
+  const causas = document.getElementById('nivel-causas');
+  causas.innerHTML = '<button class="add-nodo" onclick="agregarNodo(\'causa\')">➕ Agregar Causa</button>';
+  (datos.causas || []).forEach(c => causas.appendChild(crearCaja('causa', c.titulo)));
+}
+
+function agregarNodo(tipo){
+  const contenedor = document.getElementById(tipo==='efecto'?'nivel-efectos':'nivel-causas');
+  const btn = contenedor.querySelector('button.add-nodo');
+  const div = crearCaja(tipo);
+  contenedor.insertBefore(div, btn.nextSibling);
+  guardarArbol();
+}
+
+function limpiarArbol(){
+  localStorage.removeItem(STORAGE_KEY);
+  document.getElementById('problema-central').innerText='Problema central';
+  cargarArbol();
+}
+
+window.addEventListener('load', () => { cargarArbol(); });
+</script>
+{% endblock %}

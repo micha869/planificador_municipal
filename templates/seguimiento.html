@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block title %}Seguimiento y Evaluación{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <h2 class="text-center text-primary fw-bold">📊 Seguimiento y Evaluación del Plan Municipal</h2>
+  <p class="text-center text-muted">
+    Aquí puedes dar seguimiento a las actividades, metas y resultados del POA y del plan municipal.
+  </p>
+
+  <div class="alert alert-info">
+    <strong>Instrucciones:</strong>
+    <ul>
+      <li>Revisa las metas planificadas y su estado de cumplimiento.</li>
+      <li>Actualiza los avances de cada actividad y observa los indicadores.</li>
+      <li>Genera reportes en PDF o Excel para presentaciones o informes oficiales.</li>
+    </ul>
+  </div>
+
+  <!-- Tabla de seguimiento -->
+  <div class="table-responsive">
+    <table class="table table-bordered table-striped shadow-sm">
+      <thead class="table-primary text-center">
+        <tr>
+          <th>#</th>
+          <th>Actividad / Meta</th>
+          <th>Responsable</th>
+          <th>Indicador</th>
+          <th>Meta anual</th>
+          <th>Avance actual</th>
+          <th>% Cumplimiento</th>
+          <th>Estado</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in seguimiento %}
+        <tr>
+          <td class="text-center">{{ loop.index }}</td>
+          <td>{{ item.actividad }}</td>
+          <td>{{ item.responsable }}</td>
+          <td>{{ item.indicador }}</td>
+          <td class="text-center">{{ item.meta_anual }}</td>
+          <td class="text-center">{{ item.avance_actual }}</td>
+          <td class="text-center">{{ item.porcentaje_cumplimiento }}%</td>
+          <td class="text-center">
+            {% if item.porcentaje_cumplimiento >= 100 %}
+              <span class="badge bg-success">Completado</span>
+            {% elif item.porcentaje_cumplimiento >= 50 %}
+              <span class="badge bg-warning text-dark">En progreso</span>
+            {% else %}
+              <span class="badge bg-danger">Pendiente</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Botones de exportación -->
+  <div class="text-center mt-3">
+    <button id="export-pdf" class="btn btn-secondary me-2">📄 Exportar PDF</button>
+    <button id="export-excel" class="btn btn-success">📊 Exportar Excel</button>
+  </div>
+</div>
+
+<!-- Librerías JS para exportación -->
+<script src="https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script>
+  // Exportar PDF
+  document.getElementById('export-pdf').addEventListener('click', function() {
+    var element = document.querySelector('table');
+    html2pdf().from(element).set({
+      filename: 'seguimiento_plan_municipal.pdf',
+      html2canvas: { scale: 2 }
+    }).save();
+  });
+
+  // Exportar Excel
+  document.getElementById('export-excel').addEventListener('click', function() {
+    var wb = XLSX.utils.table_to_book(document.querySelector('table'), { sheet: "Seguimiento" });
+    XLSX.writeFile(wb, 'seguimiento_plan_municipal.xlsx');
+  });
+</script>
+{% endblock %}

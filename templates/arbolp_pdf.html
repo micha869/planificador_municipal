@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<style>
+.arbol-container { display:flex; flex-direction:column; align-items:center; gap:2rem; margin-top:2rem; }
+.nivel { display:flex; justify-content:center; flex-wrap:wrap; gap:1rem; }
+.caja { border-radius:10px; padding:10px 15px; min-width:150px; text-align:center; font-family:sans-serif; }
+.caja.problema { background-color:#ffcc80; font-weight:bold; font-size:1.3em; }
+.caja.efecto { background-color:#b2dfdb; }
+.caja.causa { background-color:#bbdefb; }
+</style>
+</head>
+<body>
+<h1>🌳 Árbol de Problemas - {{ municipio }}</h1>
+
+<div class="arbol-container">
+  <div class="nivel">
+    {% for e in arbol.efectos %}
+      <div class="caja efecto">{{ e.titulo }}</div>
+    {% endfor %}
+  </div>
+
+  <div class="nivel">
+    <div class="caja problema">{{ arbol.titulo }}</div>
+  </div>
+
+  <div class="nivel">
+    {% for c in arbol.causas %}
+      <div class="caja causa">{{ c.titulo }}</div>
+    {% endfor %}
+  </div>
+</div>
+</body>
+</html>

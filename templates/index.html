@@ -7,9 +7,8 @@
   <h1 class="mb-3">📘 Bienvenido al Planificador Municipal</h1>
   <p class="lead">Herramienta educativa para la planeación estratégica municipal.</p>
   <div class="mt-4">
-    <a href="{{ url_for('arbol_marco') }}" class="btn btn-primary-custom me-3">Acceder a Herramientas</a>
-   <a href="{{ url_for('cursos') }}" class="btn btn-outline-secondary">Acceder a Cursos</a>
-
+    <a href="{{ url_for('arbolp.ruta_arbolp') }}" class="btn btn-primary-custom me-3">Acceder a Herramientas</a>
+    <a href="{{ url_for('cursos') }}" class="btn btn-outline-secondary">Acceder a Cursos</a>
   </div>
 </div>
 
@@ -18,49 +17,20 @@
     <div class="card card-custom p-3">
       <h5>📊 Diagnóstico Municipal</h5>
       <p>Consulta diagnósticos automáticos con datos públicos.</p>
-      <a href="{{ url_for('diagnostico') }}" class="btn btn-sm btn-outline-primary">Ver diagnóstico</a>
+      <a href="{{ url_for('diagnostico.ruta_diagnostico') }}" class="btn btn-sm btn-outline-primary">Ver diagnóstico</a>
     </div>
   </div>
   <div class="col-md-4">
     <div class="card card-custom p-3">
       <h5>🌳 Árbol de Problemas</h5>
       <p>Crea tu árbol de problemas visual de forma interactiva.</p>
-      <a href="{{ url_for('arbol') }}" class="btn btn-sm btn-outline-primary">Crear árbol</a>
-    </div>
+      <a href="{{ url_for('arbolp.ruta_arbolp') }}" class="btn btn-primary-custom me-3">Acceder a Herramientas</a>
   </div>
   <div class="col-md-4">
     <div class="card card-custom p-3">
       <h5>📋 Marco Lógico</h5>
       <p>Llena la matriz de marco lógico y genera planes PDF o Word.</p>
-      <a href="{{ url_for('arbol_marco') }}" class="btn btn-sm btn-outline-primary">Usar herramienta</a>
-    </div>
-  </div>
-</div>
-
-<div class="mt-5">
-  <h2 class="text-center">¿Qué aprenderás en nuestros cursos?</h2>
-  <ul class="list-group list-group-flush fs-5 mt-3">
-    <li class="list-group-item">📌 Diagnóstico municipal y territorial</li>
-    <li class="list-group-item">🧠 Árbol de Problemas y Objetivos</li>
-    <li class="list-group-item">📋 Matriz de Marco Lógico</li>
-    <li class="list-group-item">📄 Planes de desarrollo basados en resultados</li>
-  </ul>
-  <div class="text-center mt-4">
-    <a href="{{ url_for('cursos') }}" class="btn btn-primary btn-lg">Explorar Cursos</a>
-  </div>
-</div>
-
-<div class="mt-5">
-  <h3 class="text-center mb-4">Testimonios</h3>
-  <div class="row">
-    <div class="col-md-6">
-      <blockquote class="blockquote">“Muy útil para capacitar al personal del municipio.”</blockquote>
-      <footer class="blockquote-footer text-dark">Lic. Ana Pérez, Directora de Planeación</footer>
-    </div>
-    <div class="col-md-6">
-      <blockquote class="blockquote">“Me ayudó a preparar mi examen de oposición para servidor público.”</blockquote>
-      <footer class="blockquote-footer text-dark">Carlos Ramírez, Egresado en Administración Pública</footer>
-    </div>
+      <a href="{{ url_for('marco_logico_mod.marco_logico') }}" class="btn btn-sm btn-outline-primary">Usar herramienta</a>
   </div>
 </div>
 {% endblock %}

@@ -3,8 +3,21 @@
 {% block title %}Árbol de Problemas{% endblock %}
 
 {% block head %}
-<!-- jsTree CSS -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.3.12/themes/default/style.min.css" />
+<style>
+.arbol-container { display:flex; flex-direction:column; align-items:center; gap:2rem; margin-top:2rem; position:relative; }
+.nivel { display:flex; justify-content:center; flex-wrap:wrap; gap:1rem; transition: all 0.3s ease; }
+.caja { background-color:#eaf6f6; border-left:6px solid #007b83; border-radius:10px; padding:10px 15px; min-width:150px; box-shadow:2px 2px 6px rgba(0,0,0,0.15); text-align:center; position:relative; cursor:text; transition: all 0.2s ease; }
+.caja:hover { transform: scale(1.03); box-shadow:4px 4px 10px rgba(0,0,0,0.25); }
+.caja.problema { background-color:#ffcc80; border-color:#ff9800; font-weight:bold; font-size:1.3em; }
+.caja.efecto { background-color:#b2dfdb; border-color:#009688; }
+.caja.causa { background-color:#bbdefb; border-color:#1976d2; }
+.caja[contenteditable="true"]:focus { outline:2px dashed #007b83; background-color:#fff3cd; }
+.nivel button.add-nodo, .btn-limpiar { padding:2px 6px; font-size:0.9em; margin-left:5px; cursor:pointer; border-radius:5px; border:none; transition:0.2s; }
+.nivel button.add-nodo { background-color:#007b83; color:white; }
+.nivel button.add-nodo:hover { background-color:#005f5f; }
+.btn-limpiar { background-color:#dc3545; color:white; }
+.btn-limpiar:hover { background-color:#a71d2a; }
+</style>
 {% endblock %}
 
 {% block content %}
@@ -14,31 +27,29 @@
     <a href="{{ url_for('dashboard') }}" class="btn btn-outline-primary">← Volver al menú principal</a>
   </div>
 
-  <section class="mb-4">
-    <h2>¿Qué es?</h2>
-    <p>El árbol de problemas es una herramienta para identificar las causas y efectos de un problema central. Ayuda a tomar decisiones más informadas en la planeación.</p>
-  </section>
+  <h2 class="text-center text-primary">🌳 Árbol de Problemas - {{ municipio }}</h2>
+  <p class="text-center">Haz clic en los textos para editarlos y usa “+” para agregar efectos o causas.</p>
 
-  <section class="mb-5">
-    <h2>Simulador interactivo</h2>
-    <p>Haz clic derecho en cualquier nodo para agregar o eliminar nodos. Puedes exportar el árbol en formato JSON o PDF.</p>
-
-    <div id="arbolProblemas" class="border rounded p-3 mb-3" style="min-height: 300px;"></div>
-
-    <div>
-      <button class="btn btn-success me-2" onclick="exportarArbol()">📤 Exportar JSON</button>
-      <button class="btn btn-primary ms-2" onclick="descargarArbol()">💾 Descargar JSON</button>
-      <button class="btn btn-info ms-2" onclick="descargarPDF()">📄 Descargar PDF</button>
-      <button class="btn btn-danger ms-2" onclick="reiniciarArbol()">🔁 Reiniciar árbol</button>
-      <button class="btn btn-warning ms-2" onclick="guardarArbolProblemas()">🧠 Guardar en navegador</button>
-
+  <div id="arbol" class="arbol-container">
+    <div id="nivel-efectos" class="nivel">
+      <button class="add-nodo" onclick="agregarNodo('efecto')">➕ Agregar Efecto</button>
+    </div>
+    <div id="nivel-problema" class="nivel">
+      <div class="caja problema" id="problema-central" contenteditable="true">Problema central</div>
+    </div>
+    <div id="nivel-causas" class="nivel">
+      <button class="add-nodo" onclick="agregarNodo('causa')">➕ Agregar Causa</button>
     </div>
 
-    <pre id="jsonSalida" class="bg-light mt-4 p-3 border rounded d-none"></pre>
-  </section>
+    <!-- Botón para limpiar árbol -->
+    <div class="mt-3">
+      <button class="btn-limpiar" onclick="limpiarArbol()">🧹 Limpiar árbol</button>
+    </div>
+  </div>
 
   <hr class="my-5">
 
+  <!-- Explicación del árbol -->
   <section class="mb-4">
     <h2>¿Qué es un Árbol de Problemas y para qué se utiliza?</h2>
     <p>
@@ -81,117 +92,29 @@
       Entenderlo a profundidad te permitirá generar alternativas más efectivas, sostenibles y adecuadas para tu comunidad.
     </p>
   </section>
+
 </div>
 {% endblock %}
 
 {% block scripts %}
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.3.12/jstree.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-
 <script>
-  let dataInicial = [
-    {
-      "id": "problema_central",
-      "text": "Problema Central: Alta deserción escolar",
-      "state": { "opened": true },
-      "children": [
-        { "id": "causas", "text": "Causas", "children": [] },
-        { "id": "efectos", "text": "Efectos", "children": [] }
-      ]
-    }
-  ];
+function agregarNodo(tipo) {
+    const nivel = tipo === 'efecto' ? document.getElementById('nivel-efectos') : document.getElementById('nivel-causas');
+    const nuevo = document.createElement('div');
+    nuevo.className = 'caja ' + tipo;
+    nuevo.contentEditable = true;
+    nuevo.textContent = tipo === 'efecto' ? 'Nuevo efecto' : 'Nueva causa';
+    nivel.appendChild(nuevo);
+}
 
-  let arbolData = JSON.parse(JSON.stringify(dataInicial));
+function limpiarArbol() {
+    // Limpiar solo efectos y causas, dejando el problema central intacto
+    const efectos = document.getElementById('nivel-efectos');
+    const causas = document.getElementById('nivel-causas');
 
-  function limpiarNodos(nodos) {
-    return nodos.map(nodo => ({
-      text: nodo.text,
-      children: nodo.children ? limpiarNodos(nodo.children) : []
-    }));
-  }
-
-    $(function () {
-    $('#arbolProblemas').jstree({
-      'core': {
-        'check_callback': true,
-        'data': arbolData
-      },
-      "plugins": ["contextmenu", "dnd", "types"],
-      "contextmenu": {
-        "items": function (node) {
-          let tree = $("#arbolProblemas").jstree(true);
-          return {
-            "Agregar": {
-              "label": "➕ Agregar Nodo",
-              "action": function () {
-                let nuevo = tree.create_node(node, { "text": "Nuevo nodo" });
-                tree.edit(nuevo);
-              }
-            },
-            "Editar": {
-              "label": "✏️ Editar Nodo",
-              "action": function () {
-                tree.edit(node);
-              }
-            },
-            "Eliminar": {
-              "label": "🗑 Eliminar Nodo",
-              "_disabled": node.id === "problema_central" || node.id === "causas" || node.id === "efectos",
-              "action": function () {
-                tree.delete_node(node);
-              }
-            }
-          };
-        }
-      }
-    });
-  });
-
-  function exportarArbol() {
-    const arbol = $('#arbolProblemas').jstree(true).get_json('#', { flat: false });
-    const arbolLimpio = limpiarNodos(arbol);
-    document.getElementById("jsonSalida").textContent = JSON.stringify(arbolLimpio, null, 2);
-    document.getElementById("jsonSalida").classList.remove("d-none");
-  }
-
-  function descargarArbol() {
-    const arbol = $('#arbolProblemas').jstree(true).get_json('#', { flat: false });
-    const arbolLimpio = limpiarNodos(arbol);
-    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(arbolLimpio, null, 2));
-    const downloadAnchor = document.createElement('a');
-    downloadAnchor.setAttribute("href", dataStr);
-    downloadAnchor.setAttribute("download", "arbol_problemas.json");
-    document.body.appendChild(downloadAnchor);
-    downloadAnchor.click();
-    document.body.removeChild(downloadAnchor);
-  }
-
-  function descargarPDF() {
-    html2canvas(document.querySelector("#arbolProblemas")).then(canvas => {
-      const { jsPDF } = window.jspdf;
-      const pdf = new jsPDF();
-      const imgData = canvas.toDataURL("image/png");
-      const imgProps = pdf.getImageProperties(imgData);
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
-      pdf.addImage(imgData, "PNG", 0, 10, pdfWidth, pdfHeight);
-      pdf.save("arbol_problemas.pdf");
-    });
-  }
-
-  function guardarArbolProblemas() {
-    const arbol = $('#arbolProblemas').jstree(true).get_json('#', { flat: false });
-    const arbolLimpio = limpiarNodos(arbol);
-    localStorage.setItem('arbol_problemas', JSON.stringify(arbolLimpio));
-    alert('Árbol guardado en tu navegador (localStorage)');
-  }
-
-  function reiniciarArbol() {
-    $('#arbolProblemas').jstree(true).settings.core.data = JSON.parse(JSON.stringify(dataInicial));
-    $('#arbolProblemas').jstree(true).refresh();
-    document.getElementById("jsonSalida").classList.add("d-none");
-  }
+    // Eliminamos todos los nodos que no sean botones
+    efectos.querySelectorAll('.caja').forEach(nodo => nodo.remove());
+    causas.querySelectorAll('.caja').forEach(nodo => nodo.remove());
+}
 </script>
 {% endblock %}

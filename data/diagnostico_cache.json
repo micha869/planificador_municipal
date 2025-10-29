@@ -1,0 +1,68 @@
+{
+  "12001": {
+    "municipio": "Acapulco de Juárez",
+    "poblacion_total": 779566,
+    "viviendas": 226456,
+    "pobreza": 42.0,
+    "rezago_educativo": 17.5,
+    "salud": 75.2,
+    "poblacion_indigena": 3.8,
+    "marginacion": "Media",
+    "indice_desarrollo": 0.72,
+    "seguridad": "Media",
+    "economia": "Turismo, comercio y servicios",
+    "servicios_basicos": "Cobertura de agua y drenaje: 85%",
+    "participacion_ciudadana": "Media",
+    "cohesion_social": "Media",
+    "sostenibilidad_ambiental": "Programas de reforestación y limpieza de playas",
+    "desarrollo_urbano": "N/A",
+    "medio_ambiente": "N/A",
+    "condiciones_locales": "N/A",
+    "delimitacion_territorial": "N/A",
+    "caracteristicas_fisicas": "N/A",
+    "caracteristicas_sociales": "N/A",
+    "seguimiento_politicas": "N/A",
+    "demandas": [
+      {
+        "texto": "Participación en programas municipales",
+        "fecha": "16/10/2025 13:44"
+      }
+    ],
+    "clave": "12001"
+  },
+  "12002": {
+    "municipio": "Ahuacuotzingo",
+    "poblacion_total": 42995,
+    "viviendas": 10391,
+    "pobreza": 35.0,
+    "rezago_educativo": 22.3,
+    "salud": 60.5,
+    "poblacion_indigena": 6.2,
+    "marginacion": "Alta",
+    "indice_desarrollo": 0.65,
+    "seguridad": "Alta",
+    "economia": "Agricultura y ganadería",
+    "servicios_basicos": "Cobertura de agua y drenaje: 65%",
+    "participacion_ciudadana": "Media",
+    "cohesion_social": "Media",
+    "sostenibilidad_ambiental": "Proyectos locales de conservación de bosques",
+    "desarrollo_urbano": "N/A",
+    "medio_ambiente": "N/A",
+    "condiciones_locales": "N/A",
+    "delimitacion_territorial": "N/A",
+    "caracteristicas_fisicas": "N/A",
+    "caracteristicas_sociales": "N/A",
+    "seguimiento_politicas": "N/A",
+    "demandas": [
+      {
+        "texto": "Participación en programas municipales",
+        "fecha": "16/10/2025 13:44"
+      },
+      {
+        "texto": "probelmas de salud",
+        "fecha": "17/10/2025 09:36"
+      }
+    ],
+    "clave": "12002"
+  }
+}

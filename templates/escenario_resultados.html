@@ -1,0 +1,255 @@
+{% extends "base.html" %}
+{% block title %}Resultados del Escenario Interactivo{% endblock %}
+
+{% block content %}
+<div class="container mt-4" id="contenidoExportable">
+
+    <!-- Botón de salida -->
+    <div class="text-start mb-3">
+        <a href="{{ url_for('dashboard') }}" class="btn btn-danger">← Salir al Dashboard</a>
+    </div>
+
+    <h2 class="text-center text-primary">Resultados del Escenario Interactivo</h2>
+
+    <!-- Instrucciones -->
+    <div class="alert alert-info mt-3">
+        <h5>💡 Cómo usar este módulo</h5>
+        <ul>
+            <li>Este módulo permite analizar escenarios futuros basados en tu diagnóstico.</li>
+            <li>Llena el FODA, prioriza los problemas y simula escenarios con impacto y urgencia.</li>
+            <li>En este resultado verás el <strong>mapa cartesiano</strong> con colores que muestran la prioridad: 🔴 Crítico, 🟡 Medio, 🟢 Bajo.</li>
+            <li>Haz clic en los puntos para ver más información o guarda tu análisis como PDF o Word.</li>
+        </ul>
+    </div>
+
+    <!-- Escenario -->
+    <p><strong>Nombre del Escenario:</strong> {{ resultados.nombre }}</p>
+    <p><strong>Estrategia:</strong> {{ resultados.estrategia }}</p>
+    <p><strong>Interpretación:</strong> {{ resultados.interpretacion }}</p>
+
+    <!-- Mapa Cartesiano -->
+    <h3 class="mt-4">📊 Simulación de Escenario (Mapa Cartesiano)</h3>
+    <div class="d-flex justify-content-center mb-4">
+        <canvas id="mapaCartesiano"></canvas>
+    </div>
+
+    <!-- Tabla de Problemas -->
+    <h3 class="mt-4">📌 Identificación y Priorización de Problemas</h3>
+    <table class="table table-bordered text-center">
+        <thead class="table-light">
+            <tr>
+                <th>Problema</th>
+                <th>Impacto (%)</th>
+                <th>Urgencia (%)</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for p in resultados.problemas_combinados %}
+            <tr>
+                <td>{{ p.problema }}</td>
+                <td>{{ p.impacto }}</td>
+                <td>{{ p.urgencia }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- FODA -->
+    <h3 class="mt-4">📈 Análisis FODA</h3>
+    <div class="row">
+        {% for categoria in ['Fortalezas','Debilidades','Oportunidades','Amenazas'] %}
+        <div class="col-md-6 mb-3">
+            <label class="fw-bold">{{ categoria }}</label>
+            <ul>
+                {% for item in resultados.foda[categoria|lower] %}
+                <li>{{ item }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Matriz de Influencia y Dependencia -->
+    <h3 class="mt-4">🔗 Matriz de Influencia y Dependencia</h3>
+    <div class="d-flex justify-content-center mb-4">
+        <canvas id="matrizInfluencia"></canvas>
+    </div>
+
+    <!-- Botones -->
+    <div class="text-center mt-4 mb-5">
+        <a href="{{ url_for('escenarios.escenarios') }}" class="btn btn-secondary">← Volver</a>
+        <button class="btn btn-outline-danger ms-2" onclick="guardarTodoPDF()">📄 Guardar Todo en PDF</button>
+        <button class="btn btn-outline-primary ms-2" onclick="guardarTodoWord()">📝 Guardar Todo en Word</button>
+    </div>
+</div>
+
+<!-- Modal de Problema -->
+<div class="modal fade" id="infoProblemaModal" tabindex="-1" aria-labelledby="infoProblemaLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="infoProblemaLabel">Información del Problema</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body" id="modalContenido"></div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+// =========================
+// Datos
+// =========================
+const problemas = {{ resultados.problemas_combinados|tojson }};
+
+// =========================
+// Función para ajustar canvas
+// =========================
+function ajustarCanvas(canvasId) {
+    const canvas = document.getElementById(canvasId);
+    const width = Math.min(window.innerWidth * 0.9, 400); // máximo 400px
+    const height = width * 0.8; // proporción 4:3
+    canvas.width = width;
+    canvas.height = height;
+    return { width, height };
+}
+
+// =========================
+// Inicializar gráficos adaptativos
+// =========================
+function inicializarGraficos() {
+    const sizeMapa = ajustarCanvas('mapaCartesiano');
+    const sizeInfluencia = ajustarCanvas('matrizInfluencia');
+
+    // Tamaño de fuente según ancho
+    const fontSize = Math.max(8, Math.min(14, window.innerWidth/50));
+
+    // Mapa Cartesiano
+    const ctxMapa = document.getElementById('mapaCartesiano').getContext('2d');
+    new Chart(ctxMapa, {
+        type: 'scatter',
+        data: {
+            datasets: [{
+                label: 'Problemas',
+                data: problemas.map(p => ({
+                    x: p.impacto,
+                    y: p.urgencia,
+                    problem: p.problema
+                })),
+                backgroundColor: problemas.map(p => p.impacto >= 70 ? '#ff4c4c' : p.impacto >= 40 ? '#ffca28' : '#4caf50'),
+                pointRadius: Math.max(5, window.innerWidth/100)
+            }]
+        },
+        options: {
+            responsive: false,
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: ctx => `${ctx.raw.problem} | Impacto: ${ctx.raw.x}% | Urgencia: ${ctx.raw.y}%`
+                    }
+                }
+            },
+            scales: {
+                x: { 
+                    title: { display: true, text: 'Impacto (%)', font: { size: fontSize } }, 
+                    min:0, max:100 
+                },
+                y: { 
+                    title: { display: true, text: 'Urgencia (%)', font: { size: fontSize } }, 
+                    min:0, max:100 
+                }
+            },
+            onClick: (evt, elements) => {
+                if(elements.length) {
+                    const p = problemas[elements[0].index];
+                    document.getElementById('modalContenido').innerHTML = `
+                        <p><strong>Problema:</strong> ${p.problema}</p>
+                        <p><strong>Recomendación:</strong> Considera su posición en el cuadrante para decidir intervención.</p>`;
+                    new bootstrap.Modal(document.getElementById('infoProblemaModal')).show();
+                }
+            }
+        }
+    });
+
+    // Matriz de Influencia
+    const ctxInfluencia = document.getElementById('matrizInfluencia').getContext('2d');
+    new Chart(ctxInfluencia, {
+        type: 'scatter',
+        data: {
+            datasets: [{
+                label: 'Variables Clave',
+                data: problemas.map(p => ({
+                    x: p.influencia || Math.random()*100,
+                    y: p.dependencia || Math.random()*100,
+                    problem: p.problema
+                })),
+                backgroundColor: '#42a5f5',
+                pointRadius: Math.max(4, window.innerWidth/120)
+            }]
+        },
+        options: {
+            responsive: false,
+            plugins: {
+                tooltip: {
+                    callbacks: { label: ctx => ctx.raw.problem }
+                }
+            },
+            scales: {
+                x: { title: { display:true, text:'Influencia', font:{ size: fontSize } }, min:0, max:100 },
+                y: { title: { display:true, text:'Dependencia', font:{ size: fontSize } }, min:0, max:100 }
+            }
+        }
+    });
+}
+
+// Ejecutar al cargar y al cambiar tamaño
+window.addEventListener('load', inicializarGraficos);
+window.addEventListener('resize', () => {
+    document.getElementById('mapaCartesiano').getContext('2d').clearRect(0,0,document.getElementById('mapaCartesiano').width,document.getElementById('mapaCartesiano').height);
+    document.getElementById('matrizInfluencia').getContext('2d').clearRect(0,0,document.getElementById('matrizInfluencia').width,document.getElementById('matrizInfluencia').height);
+    inicializarGraficos();
+});
+
+// =========================
+// Exportar PDF
+// =========================
+async function guardarTodoPDF() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF('p','mm','a4');
+    const contenedor = document.getElementById('contenidoExportable');
+
+    await html2canvas(contenedor, { scale: 2 }).then(canvas => {
+        const imgData = canvas.toDataURL('image/png');
+        const pdfWidth = doc.internal.pageSize.getWidth();
+        const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+        doc.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+    });
+
+    doc.save('modulo_escenario_completo.pdf');
+}
+
+// =========================
+// Exportar Word
+// =========================
+function guardarTodoWord() {
+    const contenedor = document.getElementById('contenidoExportable').cloneNode(true);
+    contenedor.querySelectorAll('button, a.btn-secondary, a.btn-outline-danger, a.btn-outline-primary').forEach(el => el.remove());
+
+    const blob = new Blob(['\ufeff', contenedor.innerHTML], { type: 'application/msword' });
+    const enlace = document.createElement('a');
+    enlace.href = URL.createObjectURL(blob);
+    enlace.download = 'modulo_escenario_completo.doc';
+    enlace.click();
+}
+</script>
+{% endblock %}

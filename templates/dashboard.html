@@ -32,20 +32,23 @@
   </div>
 
   <!-- Herramientas principales -->
-  <div class="section-title">📊 Herramientas para planificar</div>
-  <div class="list-group shadow-sm rounded" style="min-width: 300px;">
-    <a href="{{ url_for('diagnostico') }}" class="list-group-item list-group-item-action">📊 Diagnóstico automático</a>
-    <a href="{{ url_for('arbol') }}" class="list-group-item list-group-item-action">🌳 Árbol de problemas</a>
-    <a href="{{ url_for('marco_logico') }}" class="list-group-item list-group-item-action">📋 Marco lógico</a>
-    <a href="{{ url_for('arbol_marco') }}" class="list-group-item list-group-item-action">🌲 Árbol + Marco Lógico</a>
-    <a href="{{ url_for('generar_plan') }}" class="list-group-item list-group-item-action">🛠️ Generar Plan</a>
-    <a href="{{ url_for('plan_generado') }}" class="list-group-item list-group-item-action">📄 Plan generado</a>
-  </div>
+  <!-- Herramientas principales -->
+<div class="section-title">📊 Herramientas para planificar</div>
+<div class="list-group shadow-sm rounded" style="min-width: 300px;">
+  <a href="{{ url_for('diagnostico.ruta_diagnostico') }}" class="list-group-item list-group-item-action">📊 Diagnóstico automático</a>
+  <a href="{{ url_for('arbol') }}" class="list-group-item list-group-item-action">🌳 Árbol de problemas</a>
+  <a href="{{ url_for('arbol_marco') }}" class="list-group-item list-group-item-action">🌲 Árbol + Marco Lógico</a>
+  <a href="{{ url_for('escenarios.escenarios') }}" class="list-group-item list-group-item-action">🌅 Simulación de Indicadores + FODA</a>
+  <a href="{{ url_for('poa.poa_principal') }}" class="list-group-item list-group-item-action">🗓️ Generar POA (Plan Operativo Anual)</a>
+  <a href="{{ url_for('generar_plan') }}" class="list-group-item list-group-item-action">🛠️ Generar Plan</a>
+  <a href="{{ url_for('plan_generado') }}" class="list-group-item list-group-item-action">📄 Plan generado</a>
+</div>
+
 
   <!-- Cursos y Talleres -->
   <div class="section-title">🎓 Cursos y Talleres</div>
   <div class="list-group shadow-sm rounded" style="min-width: 300px;">
-    <a href="{{ url_for('curso_marco_logico') }}" class="list-group-item list-group-item-action">📌 Curso de Matriz del Marco Lógico</a>
+    <a href="{{ url_for('curso_marco_logico') }}" class="list-group-item list-group-item-action">📋 Marco lógico</a>
     <a href="{{ url_for('taller_diagnostico') }}" class="list-group-item list-group-item-action">📈 Taller de diagnóstico y análisis</a>
     <a href="#" class="list-group-item list-group-item-action">📤 Subir material (solo admin)</a>
   </div>

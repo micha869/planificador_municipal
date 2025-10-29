@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+{% block title %}Simulación de Escenarios Avanzada{% endblock %}
+
+{% block content %}
+<div class="container mt-4" id="contenidoExportable">
+
+    <!-- Botón de salida -->
+    <div class="text-start mb-3">
+        <a href="{{ url_for('dashboard') }}" class="btn btn-danger">⟵ Salir al Dashboard</a>
+    </div>
+
+    <h2 class="text-center text-primary">Simulación de Escenarios + FODA + Priorización</h2>
+
+    <!-- Instrucciones -->
+    <div class="alert alert-info mt-3">
+        <h5>💡 Cómo utilizar esta herramienta</h5>
+        <ul>
+            <li>Completa el análisis <strong>FODA</strong> indicando el nombre del área o tema.</li>
+            <li>Identifica y prioriza los <strong>problemas</strong> según impacto y urgencia.</li>
+            <li>Define una <strong>estrategia</strong> de desarrollo y simula su impacto.</li>
+            <li>Visualiza los resultados en el <strong>mapa cartesiano</strong> y la <strong>matriz de influencia/dependencia</strong>.</li>
+            <li>Descarga tu reporte completo en PDF o Word.</li>
+        </ul>
+        <p><strong>Interpretación de colores:</strong></p>
+        <ul>
+            <li><span style="color:red">Rojo:</span> Alta prioridad</li>
+            <li><span style="color:orange">Naranja:</span> Media prioridad</li>
+            <li><span style="color:green">Verde:</span> Baja prioridad</li>
+        </ul>
+    </div>
+
+    <form id="formEscenario" action="{{ url_for('escenarios.escenarios_resultados') }}" method="POST">
+
+        <!-- Nombre del FODA -->
+        <div class="mb-4">
+            <label><strong>Nombre del FODA</strong></label>
+            <input type="text" name="nombre_foda" class="form-control" placeholder="Ejemplo: FODA de Educación" required>
+        </div>
+
+        <!-- Identificación y Priorización de Problemas -->
+        <h4>📌 Identificación y Priorización de Problemas</h4>
+        <table class="table table-bordered" id="tabla-problemas">
+            <thead class="table-light">
+                <tr>
+                    <th>Problema</th>
+                    <th>Impacto (%)</th>
+                    <th>Urgencia (%)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><input type="text" name="problemas[]" class="form-control"></td>
+                    <td><input type="number" name="impacto_problemas[]" class="form-control" min="0" max="100"></td>
+                    <td><input type="number" name="urgencia_problemas[]" class="form-control" min="0" max="100"></td>
+                </tr>
+            </tbody>
+        </table>
+        <button type="button" class="btn btn-secondary mb-3" onclick="agregarFilaProblema()">+ Agregar problema</button>
+
+        <!-- FODA -->
+        <h4>💡 Análisis FODA</h4>
+        <div class="row">
+            {% for categoria in ['Fortalezas','Debilidades','Oportunidades','Amenazas'] %}
+            <div class="col-md-6 mb-3">
+                <label>{{ categoria }}</label>
+                <div id="{{ categoria|lower }}"></div>
+                <button type="button" class="btn btn-sm btn-outline-primary mt-2" onclick="agregarFoda('{{ categoria|lower }}')">+ Agregar</button>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Escenario -->
+        <h4>📊 Escenario de Simulación</h4>
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label>Nombre del Escenario</label>
+                <input type="text" name="nombre" class="form-control" required>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label>Estrategia</label>
+                <textarea name="estrategia" class="form-control" rows="2" required></textarea>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label>Impacto Directo (%)</label>
+                <input type="number" name="impacto_directo" class="form-control" min="0" max="100" value="50" required>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label>Impacto Indirecto (%)</label>
+                <input type="number" name="impacto_indirecto" class="form-control" min="0" max="100" value="50" required>
+            </div>
+        </div>
+
+        <div class="text-center mt-4">
+            <button type="submit" class="btn btn-success">▶ Simular Escenario</button>
+        </div>
+    </form>
+</div>
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+
+<script>
+// ==================== FUNCIONES DINÁMICAS ====================
+function agregarFilaProblema() {
+    const tabla = document.getElementById('tabla-problemas').getElementsByTagName('tbody')[0];
+    const fila = tabla.insertRow();
+    fila.innerHTML = `
+        <td><input type="text" name="problemas[]" class="form-control"></td>
+        <td><input type="number" name="impacto_problemas[]" class="form-control" min="0" max="100"></td>
+        <td><input type="number" name="urgencia_problemas[]" class="form-control" min="0" max="100"></td>
+    `;
+}
+
+function agregarFoda(categoria) {
+    const contenedor = document.getElementById(categoria);
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.name = categoria + '[]';
+    input.className = 'form-control mb-2';
+    contenedor.appendChild(input);
+}
+</script>
+{% endblock %}

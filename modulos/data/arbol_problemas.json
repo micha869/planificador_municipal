@@ -1,0 +1,94 @@
+{
+    "12002": {
+        "titulo": "deficiencia en salud",
+        "efectos": [
+            {
+                "titulo": "Efecto nuevo"
+            },
+            {
+                "titulo": "Efecto nuevo"
+            },
+            {
+                "titulo": "Efecto nuevo"
+            },
+            {
+                "titulo": "Efecto nuevo"
+            },
+            {
+                "titulo": "mala calidad de salud"
+            },
+            {
+                "titulo": "salud deficiente"
+            },
+            {
+                "titulo": "alto numero de enfermos"
+            }
+        ],
+        "causas": [
+            {
+                "titulo": "Causa nuevo"
+            },
+            {
+                "titulo": "Causa nuevo"
+            },
+            {
+                "titulo": "Causa nuevo"
+            },
+            {
+                "titulo": "Causa nuevo"
+            },
+            {
+                "titulo": "desabastece de medicamentos"
+            },
+            {
+                "titulo": "falta de personal"
+            },
+            {
+                "titulo": "infraestructuras"
+            }
+        ]
+    },
+    "12003": {
+        "titulo": "problema de salud",
+        "efectos": [
+            {
+                "titulo": "Efecto nuevo"
+            },
+            {
+                "titulo": "Efecto nuevo"
+            },
+            {
+                "titulo": "mas muertes por enfermedades"
+            },
+            {
+                "titulo": "numero de enfermedades"
+            },
+            {
+                "titulo": "deficiencia en salud"
+            },
+            {
+                "titulo": "desabasto de medicinas"
+            }
+        ],
+        "causas": [
+            {
+                "titulo": "Causa nuevo"
+            },
+            {
+                "titulo": "Causa nuevo"
+            },
+            {
+                "titulo": "Causa nuevo"
+            },
+            {
+                "titulo": "Causa nuevo"
+            },
+            {
+                "titulo": "falta de medicamentos"
+            },
+            {
+                "titulo": "personal limitado"
+            }
+        ]
+    }
+}

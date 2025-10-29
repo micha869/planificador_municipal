@@ -1,8 +1,13 @@
-from flask import Flask
-import os
+# app.py
+from flask import Flask, render_template, request, redirect, url_for, flash, session
+import os, json
 from dotenv import load_dotenv
 from sqlalchemy import create_engine, text
 from datetime import timedelta
+from flask_dance.contrib.google import make_google_blueprint, google
+from flask_dance.contrib.facebook import make_facebook_blueprint, facebook
+from werkzeug.security import generate_password_hash, check_password_hash
+from modulos.diagnostico import obtener_diagnostico_completo
 
 # ------------------- CONFIG -------------------
 load_dotenv()
@@ -11,33 +16,20 @@ app = Flask(__name__)
 app.secret_key = os.getenv("FLASK_SECRET_KEY", "clave_super_secreta")
 app.permanent_session_lifetime = timedelta(days=30)
 
-# ------------------- CONEXIÓN NEON -------------------
-# Usando psycopg3 (psycopg[binary]) compatible con Python 3.13
-DATABASE_URL = os.getenv(
-    "DATABASE_URL"
-) or "postgresql+psycopg://neondb_owner:npg_mGFOoEDuL96W@ep-snowy-water-adozw9jp-pooler.c-2.us-east-1.aws.neon.tech/neondb?sslmode=require"
-
-# Crear motor SQLAlchemy
+# ------------------- BASE DE DATOS -------------------
+DATABASE_URL = os.getenv("DATABASE_URL") or "postgresql+psycopg://usuario:password@host:port/dbname"
 engine = create_engine(DATABASE_URL, echo=True, future=True)
 
-# Crear tabla de usuarios si no existe
+# Crear tabla usuarios si no existe
 with engine.begin() as conn:
-    conn.execute(
-        text(
-            """
-            CREATE TABLE IF NOT EXISTS usuarios (
-                id SERIAL PRIMARY KEY,
-                usuario VARCHAR(100) UNIQUE,
-                contrasena VARCHAR(200),
-                fecha_registro TIMESTAMP DEFAULT NOW()
-            );
-            """
-        )
-    )
-
-# ------------------- FUNCIONES -------------------
-def archivo_permitido(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+    conn.execute(text("""
+        CREATE TABLE IF NOT EXISTS usuarios (
+            id SERIAL PRIMARY KEY,
+            usuario VARCHAR(100) UNIQUE,
+            contrasena VARCHAR(200),
+            fecha_registro TIMESTAMP DEFAULT NOW()
+        );
+    """))
 
 # ------------------- BLUEPRINTS OAuth -------------------
 google_bp = make_google_blueprint(
@@ -57,9 +49,34 @@ app.register_blueprint(google_bp, url_prefix="/login")
 app.register_blueprint(facebook_bp, url_prefix="/login")
 
 # ------------------- RUTAS -------------------
+import os
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfgen import canvas
+from flask import send_file, flash, redirect, url_for
+
+def generar_plan_pdf():
+    """Genera un PDF básico del Plan Municipal."""
+    carpeta_data = "data"
+    if not os.path.exists(carpeta_data):
+        os.makedirs(carpeta_data)
+
+    ruta_pdf = os.path.join(carpeta_data, "plan_municipal.pdf")
+
+    c = canvas.Canvas(ruta_pdf, pagesize=letter)
+    c.setFont("Helvetica-Bold", 16)
+    c.drawString(100, 750, "PLAN DE DESARROLLO MUNICIPAL")
+    c.setFont("Helvetica", 12)
+    c.drawString(100, 720, "Documento generado automáticamente por el Sistema de Planeación Estratégica Municipal.")
+    c.drawString(100, 690, "Incluye módulos: Diagnóstico, Árbol de Problemas, Marco Lógico, Escenarios y POA.")
+    c.save()
+
+    return ruta_pdf
+
 
 @app.route('/')
 def index():
+    if 'usuario' in session:
+        return redirect(url_for('dashboard'))
     return render_template('index.html')
 
 @app.route('/logout')
@@ -69,50 +86,58 @@ def logout():
     return redirect(url_for('index'))
 
 # ---------- Registro tradicional ----------
-@app.route('/registro', methods=['GET', 'POST'])
-def registro():
-    if request.method == 'POST':
-        usuario = request.form['usuario']
-        contrasena = generate_password_hash(request.form['contrasena'])
+@app.route("/registrar", methods=["GET", "POST"])
+def registrar():
+    if request.method == "POST":
+        usuario = request.form.get("usuario")
+        contrasena = request.form.get("contrasena")
+
+        if not usuario or not contrasena:
+            flash("Por favor, llena todos los campos.")
+            return redirect(url_for("registrar"))
+
+        contrasena_hash = generate_password_hash(contrasena)
 
         try:
             with engine.begin() as conn:
-                conn.execute(text("""
-                    INSERT INTO usuarios (usuario, contrasena)
-                    VALUES (:usuario, :contrasena)
-                """), {"usuario": usuario, "contrasena": contrasena})
-
-            flash('✅ Registro exitoso, ahora puedes iniciar sesión.', 'success')
-            return redirect(url_for('login'))
-
+                conn.execute(
+                    text("INSERT INTO usuarios (usuario, contrasena) VALUES (:u, :c)"),
+                    {"u": usuario, "c": contrasena_hash},
+                )
+            flash("Usuario registrado exitosamente.")
+            return redirect(url_for("login"))
         except Exception as e:
-            print("❌ Error al registrar usuario:", e)
-            flash('⚠️ Usuario ya registrado o error en la base de datos.', 'danger')
-            # Rollback automático al salir del bloque
-            return render_template('registro.html')
+            flash(f"Error al registrar: {e}")
+            return redirect(url_for("registrar"))
 
-    return render_template('registro.html')
+    return render_template("registrar.html")
+
 # ---------- Login tradicional ----------
-@app.route('/login', methods=['GET', 'POST'])
+@app.route("/login", methods=["GET", "POST"])
 def login():
-    if request.method == 'POST':
-        usuario = request.form['usuario']
-        contrasena = request.form['contrasena']
-        with engine.connect() as conn:
-            # Usamos .mappings() para obtener diccionarios
+    if 'usuario' in session:
+        return redirect(url_for('dashboard'))
+
+    if request.method == "POST":
+        usuario = request.form.get("usuario")
+        contrasena = request.form.get("contrasena")
+
+        with engine.begin() as conn:
             result = conn.execute(
                 text("SELECT * FROM usuarios WHERE usuario=:usuario"),
-                {"usuario": usuario}
-            ).mappings().fetchone()  # <-- aquí está la corrección
+                {"usuario": usuario},
+            ).mappings().first()
 
-            if result and check_password_hash(result['contrasena'], contrasena):
-                session.permanent = True        # sesión permanente
-                session['usuario'] = result['usuario']
-                flash('✅ Has iniciado sesión correctamente.', 'success')
-                return redirect(url_for('dashboard'))
-            else:
-                flash('⚠️ Credenciales incorrectas.', 'danger')
-    return render_template('login.html')
+        if result and check_password_hash(result["contrasena"], contrasena):
+            session.permanent = True
+            session["usuario"] = usuario
+            flash("Inicio de sesión exitoso.")
+            return redirect(url_for("dashboard"))
+        else:
+            flash("Usuario o contraseña incorrectos.")
+            return redirect(url_for("login"))
+
+    return render_template("login.html")
 
 # ---------- Login con Google ----------
 @app.route("/login/google")
@@ -122,14 +147,14 @@ def login_google():
     resp = google.get("/oauth2/v2/userinfo")
     if resp.ok:
         info = resp.json()
-        usuario = info["email"]
+        usuario = info.get("email")
         with engine.begin() as conn:
             conn.execute(text("""
                 INSERT INTO usuarios (usuario, contrasena)
                 VALUES (:usuario, '')
                 ON CONFLICT (usuario) DO NOTHING
             """), {"usuario": usuario})
-        session.permanent = True            # <-- sesión permanente
+        session.permanent = True
         session['usuario'] = usuario
         return redirect(url_for("dashboard"))
     flash("No se pudo iniciar sesión con Google")
@@ -143,14 +168,14 @@ def login_facebook():
     resp = facebook.get("/me?fields=id,name,email")
     if resp.ok:
         info = resp.json()
-        usuario = info.get("email", info["id"])
+        usuario = info.get("email", info.get("id"))
         with engine.begin() as conn:
             conn.execute(text("""
                 INSERT INTO usuarios (usuario, contrasena)
                 VALUES (:usuario, '')
                 ON CONFLICT (usuario) DO NOTHING
             """), {"usuario": usuario})
-        session.permanent = True            # <-- sesión permanente
+        session.permanent = True
         session['usuario'] = usuario
         return redirect(url_for("dashboard"))
     flash("No se pudo iniciar sesión con Facebook")
@@ -162,8 +187,9 @@ def dashboard():
     if 'usuario' not in session:
         return redirect(url_for('login'))
 
-    autorizado = False
     correo = session['usuario']
+    autorizado = False
+
     try:
         with open('usuarios_autorizados.json', 'r') as f:
             usuarios_autorizados = json.load(f)
@@ -173,20 +199,42 @@ def dashboard():
 
     return render_template('dashboard.html', autorizado=autorizado)
 
-# ---------- Diagnóstico ----------
+
+from flask import Flask, render_template, request, redirect, url_for, flash
+from modulos.diagnostico import (
+    obtener_diagnostico_completo,
+    obtener_todos_municipios,
+    guardar_demanda,
+    sincronizar_cache  # ✅ Importar la función de sincronización
+)
+
 @app.route('/diagnostico', methods=['GET', 'POST'])
-def diagnostico():
+def ruta_diagnostico():
     resultado = None
-    municipios = []
-    ruta = os.path.join('data', 'poblacion_guerrero.json')
-    if os.path.exists(ruta):
-        with open(ruta, 'r', encoding='utf-8') as f:
-            datos = json.load(f)
-            municipios = [{"clave": clave, "nombre": info["municipio"]} for clave, info in datos.items()]
+    municipios = obtener_todos_municipios()
+
+    # Revisar si viene clave por GET (después de agregar demanda)
+    clave = request.args.get('municipio')
+
     if request.method == 'POST':
-        clave = request.form['municipio']
-        resultado = obtener_diagnostico(clave)
+        clave = request.form.get('municipio')
+
+    if clave:
+        # 🔹 Actualizar cache automáticamente antes de obtener diagnóstico
+        sincronizar_cache(clave)
+        resultado = obtener_diagnostico_completo(clave)
+
     return render_template('diagnostico.html', municipios=municipios, resultado=resultado)
+
+@app.route('/diagnostico/agregar_demanda', methods=['POST'])
+def agregar_demanda_ruta():
+    municipio = request.form.get('municipio')
+    texto = request.form.get('nueva_demanda')
+    if municipio and texto:
+        guardar_demanda(municipio, texto)
+        flash("✅ Demanda agregada correctamente", "success")
+    # Redirige al diagnóstico pasando la clave para que cargue el resultado
+    return redirect(url_for('ruta_diagnostico', municipio=municipio))
 
 # ---------- Funciones auxiliares y resto de rutas ----------
 def _descargar_archivo(nombre, as_attachment=True):
@@ -197,10 +245,6 @@ def _descargar_archivo(nombre, as_attachment=True):
 @app.route('/arbol')
 def arbol():
     return render_template('arbol.html')
-
-@app.route('/marco-logico')
-def marco_logico():
-    return render_template('marco_logico.html')
 
 @app.route('/arbol_marco')
 def arbol_marco():
@@ -367,7 +411,22 @@ def evaluacion_desempeno():
 @app.route("/marco-juridico")
 def marco_juridico():
     return render_template("marco_juridico.html")
+# ------------------- RUTAS Y BLUEPRINTS DE MÓDULOS -------------------
 
+# ------------------- BLUEPRINTS NUEVOS -------------------
+from modulos.arbolp import bp_arbolp
+from modulos.marco_logico import bp_marco_logico
+from modulos.poa import bp_poa
+from modulos.seguimiento import bp_seguimiento
+from modulos.escenarios import bp_escenarios
+from modulos.diagnostico import bp_diagnostico
+# Registrar cada blueprint
+app.register_blueprint(bp_diagnostico)
+app.register_blueprint(bp_arbolp)
+app.register_blueprint(bp_marco_logico)
+app.register_blueprint(bp_poa)
+app.register_blueprint(bp_seguimiento)
+app.register_blueprint(bp_escenarios)
 # ------------------- MAIN -------------------
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))

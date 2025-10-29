@@ -2,58 +2,160 @@
 {% block title %}Diagnóstico Municipal{% endblock %}
 
 {% block content %}
+<!-- Botón Salir -->
+<div class="mb-3">
+  <a href="{{ url_for('dashboard') }}" class="btn btn-danger">
+    ⬅ Salir
+  </a>
+</div>
+
 <h2 class="mb-4">Diagnóstico automático por municipio</h2>
 
-<form method="POST" class="mb-5 d-flex flex-column flex-md-row gap-3 align-items-center">
-  <select name="municipio" id="municipio" class="form-select flex-grow-1" required>
+<!-- Formulario selección municipio -->
+<form method="POST" class="mb-4 d-flex flex-column flex-md-row gap-3 align-items-center">
+  <select name="municipio" class="form-select flex-grow-1" required>
     <option value="" selected disabled>Selecciona un municipio...</option>
     {% for m in municipios %}
-      <option value="{{ m['clave'] }}">{{ m['nombre'] }}</option>
+      <option value="{{ m.clave }}"
+        {% if resultado and resultado.clave == m.clave %}selected{% endif %}>
+        {{ m.nombre }}
+      </option>
     {% endfor %}
   </select>
-  <button type="submit" class="btn btn-primary-custom px-4">Buscar</button>
-  <a href="{{ url_for('dashboard') }}" class="btn btn-secondary px-4">Regresar</a>
+  <button type="submit" class="btn btn-primary px-4">Buscar</button>
 </form>
 
 {% if resultado %}
-  <div class="card card-custom p-4">
-    <h3 class="fw-semibold mb-3">Diagnóstico de {{ resultado.municipio }}</h3>
-    <div class="row row-cols-1 row-cols-md-2 g-4">
+<div class="card p-4 mb-4">
+  <h3 class="fw-semibold mb-3">Diagnóstico de {{ resultado.municipio }}</h3>
 
-      {% for campo, etiqueta in {
-        'poblacion_total': 'Población total',
-        'rezago_educativo': 'Rezago educativo',
-        'pobreza': 'Pobreza',
-        'salud': 'Salud',
-        'seguridad': 'Seguridad',
-        'viviendas': 'Viviendas',
-        'poblacion_indigena': 'Población indígena',
-        'marginacion': 'Marginación',
-        'imparticion_justicia': 'Impartición de justicia',
-        'indice_desarrollo': 'Índice de desarrollo',
-        'demandas': 'Demandas ciudadanas',
-        'desarrollo_urbano': 'Desarrollo urbano',
-        'servicios_basicos': 'Servicios básicos',
-        'medio_ambiente': 'Medio ambiente',
-        'economia': 'Economía',
-        'cohesion_social': 'Cohesión social',
-        'condiciones_locales': 'Condiciones locales',
-        'delimitacion_territorial': 'Delimitación territorial',
-        'caracteristicas_fisicas': 'Características físicas',
-        'caracteristicas_sociales': 'Características sociales',
-        'participacion_ciudadana': 'Participación ciudadana',
-        'sostenibilidad_ambiental': 'Sostenibilidad ambiental',
-        'seguimiento_politicas': 'Seguimiento de políticas'
-      }.items() %}
-        <div class="col">
-          <div class="bg-light rounded shadow-sm p-3 h-100 border-start border-4 border-primary">
-            <h6 class="text-muted mb-1">{{ etiqueta }}</h6>
-            <p class="mb-0 fw-bold text-dark">{{ resultado[campo] }}</p>
+  <!-- Indicadores críticos -->
+  <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 mb-4">
+    {% set indicadores = {
+      'poblacion_total':'Población total',
+      'viviendas':'Viviendas habitadas',
+      'rezago_educativo':'Promedio de escolaridad',
+      'salud':'Personas sin acceso a servicios de salud',
+      'pobreza':'Población en pobreza',
+      'seguridad':'Seguridad',
+      'poblacion_indigena':'Población indígena',
+      'marginacion':'Marginación'
+    } %}
+    {% for campo, etiqueta in indicadores.items() %}
+      {% set valor = resultado[campo] %}
+      {% if valor != "N/A" and valor != "Datos pendientes" %}
+      <div class="col">
+        <div class="bg-light rounded shadow-sm p-3 h-100 border-start border-4
+          {% if campo in ['pobreza','rezago_educativo','salud'] %}
+            {% if valor|float > 60 %}border-danger
+            {% elif valor|float > 30 %}border-warning
+            {% else %}border-success{% endif %}
+          {% elif campo == 'marginacion' %}
+            {% if valor == 'Alta' %}border-danger
+            {% elif valor == 'Media' %}border-warning
+            {% else %}border-success{% endif %}
+          {% else %}border-primary{% endif %}">
+          <h6 class="text-muted mb-1">{{ etiqueta }}</h6>
+          <p class="mb-0 fw-bold text-dark">{{ valor }}</p>
+        </div>
+      </div>
+      {% endif %}
+    {% endfor %}
+  </div>
+
+  <!-- Campos extra -->
+  <div class="row row-cols-1 row-cols-md-2 g-4 mb-4">
+    {% for campo in [
+      'desarrollo_urbano', 'servicios_basicos', 'medio_ambiente',
+      'economia', 'cohesion_social', 'condiciones_locales', 'delimitacion_territorial',
+      'caracteristicas_fisicas', 'caracteristicas_sociales', 'participacion_ciudadana',
+      'sostenibilidad_ambiental', 'seguimiento_politicas'
+    ] %}
+      {% set valor = resultado[campo] %}
+      {% if valor != "N/A" and valor != "Datos pendientes" %}
+      <div class="col">
+        <div class="bg-white rounded shadow-sm p-3 h-100 border-start border-4 border-secondary">
+          <h6 class="text-muted mb-1">{{ campo.replace('_',' ').title() }}</h6>
+          <p class="mb-0 text-dark">{{ valor }}</p>
+        </div>
+      </div>
+      {% endif %}
+    {% endfor %}
+  </div>
+
+  <!-- Tarjeta para agregar demanda ciudadana -->
+  <div class="card border-info mb-4 p-3 bg-light">
+    <h5>📌 Agregar nueva demanda ciudadana</h5>
+    <form method="POST" action="{{ url_for('diagnostico.agregar_demanda_ruta') }}" class="mb-3">
+      <input type="hidden" name="municipio" value="{{ resultado.clave }}">
+      <div class="input-group">
+        <input type="text" name="nueva_demanda" class="form-control" placeholder="Escribe tu demanda..." required>
+        <button class="btn btn-primary" type="submit">Agregar</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Botón para generar Árbol de Problemas -->
+<a href="{{ url_for('arbolp.ruta_arbolp', municipio=resultado.clave) }}" class="btn btn-success mt-3">
+  ➡ Ir al Árbol de Problemas 🌳
+</a>
+
+  <!-- ===== DEMANDAS EMERGENTES ===== -->
+  <div aria-live="polite" aria-atomic="true" class="position-relative">
+    <div class="toast-container position-fixed top-0 end-0 p-3">
+      {% for d in resultado.demandas %}
+        <div class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+          <div class="toast-header bg-info text-white">
+            <strong class="me-auto">Demanda Ciudadana</strong>
+            <small>{{ d.fecha }}</small>
+            <button type="button" class="btn-close btn-close-white ms-2" data-bs-dismiss="toast"></button>
           </div>
+          <div class="toast-body">{{ d.texto }}</div>
         </div>
       {% endfor %}
-
     </div>
   </div>
+
+  <!-- ===== Gráfico de indicadores ===== -->
+  <div id="chart" style="height:400px;" class="mb-5"></div>
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  <script>
+    var indicadores = {{ resultado | tojson }};
+    var keys=[], values=[];
+    for (var key in indicadores){
+        var val = indicadores[key];
+        if(!isNaN(parseFloat(val))){
+            keys.push(key.replace(/_/g,' ').toUpperCase());
+            values.push(parseFloat(val));
+        }
+    }
+    Plotly.newPlot('chart', [{x:keys, y:values, type:'bar', marker:{color:'#0d6efd'}}],
+        {title:'Indicadores del municipio', margin:{t:40}, xaxis:{tickangle:-45}, yaxis:{title:'Valor'}},{responsive:true});
+
+    // ===== Activar Toasts =====
+    document.addEventListener('DOMContentLoaded', function () {
+        var toastElList = [].slice.call(document.querySelectorAll('.toast'))
+        toastElList.map(function (toastEl) {
+            var toast = new bootstrap.Toast(toastEl, {delay: 8000})
+            toast.show()
+        })
+    });
+  </script>
+
+  <!-- ===== Fuentes de los datos ===== -->
+  <div class="mt-5 p-3 bg-light border rounded">
+    <h5 class="fw-semibold">📚 Fuentes de los datos</h5>
+    <ul class="mb-0">
+      <li><strong>Población, viviendas y población indígena:</strong> INEGI, Censo de Población y Vivienda 2020. <a href="https://www.inegi.org.mx/programas/ccpv/2020/" target="_blank">INEGI 2020</a></li>
+      <li><strong>Pobreza y marginación:</strong> CONEVAL, Medición de la pobreza en México. <a href="https://www.coneval.org.mx/Medicion/Paginas/Medicion-de-la-pobreza-en-Mexico.aspx" target="_blank">CONEVAL</a></li>
+      <li><strong>Rezago educativo:</strong> INEGI y SEP, Encuesta Intercensal 2015-2020.</li>
+      <li><strong>Salud:</strong> Secretaría de Salud / INEGI / CONEVAL, cobertura de servicios médicos.</li>
+      <li><strong>Economía y servicios básicos:</strong> Informes municipales y geográficos INEGI.</li>
+      <li><strong>Participación ciudadana, cohesión social y sostenibilidad ambiental:</strong> Informes estatales y municipales de Guerrero.</li>
+      <li><strong>Índice de desarrollo:</strong> Estimación basada en indicadores de educación, salud, ingreso y servicios básicos (similar al IDH municipal).</li>
+    </ul>
+  </div>
+
+</div>
 {% endif %}
 {% endblock %}

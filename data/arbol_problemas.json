@@ -1,0 +1,42 @@
+{
+  "Acapulco de Juárez": {
+    "municipio": "Acapulco de Juárez",
+    "problemas": [
+      {
+        "titulo": "Pobreza crítico",
+        "descripcion": "Valor detectado: 556.0",
+        "tipo": "indicador"
+      },
+      {
+        "titulo": "Rezago educativo crítico",
+        "descripcion": "Valor detectado: 2.72",
+        "tipo": "indicador"
+      },
+      {
+        "titulo": "Salud crítico",
+        "descripcion": "Valor detectado: 6235.0",
+        "tipo": "indicador"
+      },
+      {
+        "titulo": "Viviendas crítico",
+        "descripcion": "Valor detectado: 662739.0",
+        "tipo": "indicador"
+      },
+      {
+        "titulo": "Servicios basicos crítico",
+        "descripcion": "Datos de agua, luz y drenaje",
+        "tipo": "indicador"
+      },
+      {
+        "titulo": "Participación en programas municipales",
+        "descripcion": "",
+        "tipo": "demanda"
+      },
+      {
+        "titulo": "probelmas de salud",
+        "descripcion": "",
+        "tipo": "demanda"
+      }
+    ]
+  }
+}

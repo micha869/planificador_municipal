@@ -1,0 +1,202 @@
+{% extends "base.html" %}
+{% block title %}Plan Operativo Anual{% endblock %}
+
+{% block content %}
+<h2>🗓️ Plan Operativo Anual (POA Municipal)</h2>
+
+<div class="alert alert-info mt-3">
+  <h5>💡 Cómo utilizar esta herramienta</h5>
+  <ul>
+    <li><strong>Objetivo:</strong> Qué deseas lograr con esta actividad dentro del POA.</li>
+    <li><strong>Actividad:</strong> Acción específica para alcanzar el objetivo.</li>
+    <li><strong>Responsable:</strong> Persona o área responsable.</li>
+    <li><strong>Fechas:</strong> Define el inicio y fin de ejecución.</li>
+    <li><strong>Recursos:</strong> Presupuesto, materiales o personal necesario.</li>
+    <li><strong>Indicador:</strong> Cómo medirás el cumplimiento del objetivo.</li>
+    <li><strong>Medio de verificación:</strong> Evidencia del cumplimiento.</li>
+  </ul>
+  <p>➡️ Los cambios se guardan automáticamente. Puedes agregar filas o descargar el POA en PDF.</p>
+</div>
+
+<div class="table-responsive mt-3 position-relative">
+  <table class="table table-bordered" id="tablaPOA">
+    <thead>
+      <tr>
+        <th>Objetivo</th>
+        <th>Actividad</th>
+        <th>Responsable</th>
+        <th>Fecha Inicio</th>
+        <th>Fecha Fin</th>
+        <th>Recursos</th>
+        <th>Indicador</th>
+        <th>Medio de Verificación</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% set metas_base = [
+        {'objetivo':'Mejorar la seguridad pública','actividad':'Implementar patrullajes en zonas críticas','responsable':'Dirección de Seguridad Pública','fecha_inicio':'2025-01-01','fecha_fin':'2025-12-31','recursos':'Presupuesto anual de seguridad','indicador':'% de reducción de delitos','medio_verificacion':'Reportes de seguridad'},
+        {'objetivo':'Mejorar el acceso a servicios de salud','actividad':'Ampliar jornadas médicas y clínicas móviles','responsable':'Secretaría de Salud Municipal','fecha_inicio':'2025-01-01','fecha_fin':'2025-12-31','recursos':'Recursos del área de salud','indicador':'# de personas atendidas','medio_verificacion':'Registros de atención'},
+        {'objetivo':'Fortalecer la educación básica','actividad':'Capacitación docente y entrega de materiales','responsable':'Dirección de Educación','fecha_inicio':'2025-02-01','fecha_fin':'2025-12-15','recursos':'Presupuesto educativo','indicador':'% de mejora en calificaciones','medio_verificacion':'Reportes de evaluación'}
+      ] %}
+
+      {% for meta in metas|default(metas_base) %}
+      <tr>
+        <td contenteditable="true">{{ meta.objetivo }}</td>
+        <td contenteditable="true">{{ meta.actividad }}</td>
+        <td contenteditable="true">{{ meta.responsable }}</td>
+        <td contenteditable="true">{{ meta.fecha_inicio }}</td>
+        <td contenteditable="true">{{ meta.fecha_fin }}</td>
+        <td contenteditable="true">{{ meta.recursos }}</td>
+        <td contenteditable="true">{{ meta.indicador }}</td>
+        <td contenteditable="true">{{ meta.medio_verificacion }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <!-- Botón flotante de eliminar -->
+  <div id="btnEliminar" class="btn-eliminar d-none">🗑️</div>
+</div>
+
+<div class="mt-3">
+  <button class="btn btn-primary" onclick="agregarFila()">➕ Agregar fila</button>
+  <button class="btn btn-success" onclick="descargarPDF()">📄 Descargar POA en PDF</button>
+</div>
+
+<style>
+.table-responsive { overflow-x: auto; }
+#tablaPOA th { background-color: #007b83; color: white; text-align: center; }
+#tablaPOA td { text-align: center; min-width: 120px; }
+#tablaPOA td:nth-child(1) { background-color: #e0f7fa; }
+#tablaPOA td:nth-child(2) { background-color: #f1f8e9; }
+#tablaPOA td:nth-child(3) { background-color: #fff3e0; }
+#tablaPOA td:nth-child(4), #tablaPOA td:nth-child(5) { background-color: #e8eaf6; }
+#tablaPOA td:nth-child(6) { background-color: #fce4ec; }
+#tablaPOA td:nth-child(7) { background-color: #fff9c4; }
+#tablaPOA td:nth-child(8) { background-color: #d1c4e9; }
+
+.btn-eliminar {
+  position: absolute;
+  background-color: #e53935;
+  color: white;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  cursor: pointer;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+  transition: transform 0.2s, opacity 0.3s;
+  z-index: 100;
+}
+.btn-eliminar:hover {
+  background-color: #c62828;
+  transform: scale(1.1);
+}
+.d-none { display: none; }
+
+@media (max-width: 768px){
+  #tablaPOA th, #tablaPOA td { font-size: 0.85rem; padding: 5px; }
+}
+</style>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+let filaSeleccionada = null;
+const btnEliminar = document.getElementById('btnEliminar');
+
+function agregarFila(){
+  const tabla = document.getElementById('tablaPOA').querySelector('tbody');
+  const nuevaFila = document.createElement('tr');
+  nuevaFila.innerHTML = `
+    <td contenteditable="true"></td>
+    <td contenteditable="true"></td>
+    <td contenteditable="true"></td>
+    <td contenteditable="true"></td>
+    <td contenteditable="true"></td>
+    <td contenteditable="true"></td>
+    <td contenteditable="true"></td>
+    <td contenteditable="true"></td>
+  `;
+  tabla.appendChild(nuevaFila);
+  actualizarListeners();
+}
+
+function actualizarListeners(){
+  document.querySelectorAll('#tablaPOA td[contenteditable="true"]').forEach(td => {
+    td.addEventListener('input', guardarCambios);
+  });
+
+  document.querySelectorAll('#tablaPOA tbody tr').forEach(fila => {
+    fila.addEventListener('mouseenter', e => mostrarBotonEliminar(fila, e));
+    fila.addEventListener('mouseleave', ocultarBotonEliminar);
+  });
+}
+actualizarListeners();
+
+function mostrarBotonEliminar(fila, e){
+  filaSeleccionada = fila;
+  const tabla = document.getElementById('tablaPOA').getBoundingClientRect();
+  const filaRect = fila.getBoundingClientRect();
+  btnEliminar.style.top = (filaRect.top - tabla.top + window.scrollY - 10) + 'px';
+  btnEliminar.style.left = (filaRect.right - tabla.left + window.scrollX - 50) + 'px';
+  btnEliminar.classList.remove('d-none');
+}
+
+function ocultarBotonEliminar(){
+  btnEliminar.classList.add('d-none');
+}
+
+btnEliminar.addEventListener('click', () => {
+  if (filaSeleccionada) {
+    filaSeleccionada.remove();
+    guardarCambios();
+    btnEliminar.classList.add('d-none');
+  }
+});
+
+function guardarCambios(){
+  const filas = Array.from(document.querySelectorAll('#tablaPOA tbody tr'));
+  const datos = filas.map(fila => {
+    const celdas = fila.querySelectorAll('td');
+    return {
+      objetivo: celdas[0].textContent.trim(),
+      actividad: celdas[1].textContent.trim(),
+      responsable: celdas[2].textContent.trim(),
+      fecha_inicio: celdas[3].textContent.trim(),
+      fecha_fin: celdas[4].textContent.trim(),
+      recursos: celdas[5].textContent.trim(),
+      indicador: celdas[6].textContent.trim(),
+      medio_verificacion: celdas[7].textContent.trim()
+    };
+  });
+
+  fetch('/poa/actualizar', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify(datos)
+  }).then(res => res.json())
+    .then(resp => {
+      if(resp.status !== 'ok') console.error('Error al guardar los cambios');
+    });
+}
+
+function descargarPDF(){
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF('l','pt','a4');
+  html2canvas(document.getElementById('tablaPOA'), { scale: 2 }).then(canvas => {
+    const imgData = canvas.toDataURL('image/png');
+    const pdfWidth = doc.internal.pageSize.getWidth();
+    const pdfHeight = canvas.height * pdfWidth / canvas.width;
+    doc.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+    doc.save('POA_plan_operativo.pdf');
+  });
+}
+</script>
+{% endblock %}
