@@ -1,20 +1,17 @@
-# Usa Python 3.11 (estable y compatible)
+# Imagen base
 FROM python:3.11-slim
 
-# Crea un directorio de trabajo dentro del contenedor
+# Establecer el directorio de trabajo
 WORKDIR /app
 
-# Copia los archivos de tu proyecto
-COPY . /app
+# Copiar los archivos del proyecto
+COPY . .
 
-# Instala dependencias del sistema necesarias para psycopg2 y reportlab
-RUN apt-get update && apt-get install -y build-essential libpq-dev && rm -rf /var/lib/apt/lists/*
-
-# Instala dependencias de Python
+# Instalar dependencias
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Expone el puerto donde correrá Flask
-EXPOSE 5000
+# Exponer el puerto
+EXPOSE 8000
 
-# Comando para iniciar la app Flask con Gunicorn
-CMD ["gunicorn", "app:app"]
+# Comando para ejecutar la app
+CMD ["gunicorn", "-b", "0.0.0.0:8000", "app:app"]
