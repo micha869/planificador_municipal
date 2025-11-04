@@ -1,18 +1,24 @@
 import os
 import json
+import shutil
 from flask import Blueprint, render_template, request, send_file, jsonify
 from docx import Document
 import pdfkit
 
 bp_arbolp = Blueprint('arbolp', __name__, template_folder='templates')
 
+# ------------------ Configuración ------------------
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR = os.path.join(BASE_DIR, "data")
 RUTA_ARBOL = os.path.join(DATA_DIR, "arbol_problemas.json")
 os.makedirs(DATA_DIR, exist_ok=True)
-WKHTMLTOPDF_PATH = r"C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe"  # Ajusta si tu ruta es diferente
-PDFKIT_CONFIG = pdfkit.configuration(wkhtmltopdf=WKHTMLTOPDF_PATH)
 
+# Buscar wkhtmltopdf automáticamente (compatible con Render y Windows)
+WKHTMLTOPDF_PATH = shutil.which("wkhtmltopdf")
+if WKHTMLTOPDF_PATH:
+    PDFKIT_CONFIG = pdfkit.configuration(wkhtmltopdf=WKHTMLTOPDF_PATH)
+else:
+    PDFKIT_CONFIG = None  # En Render o entornos sin wkhtmltopdf
 
 # ------------------ Rutas ------------------
 @bp_arbolp.route('/arbolp')
@@ -53,6 +59,9 @@ def guardar_arbol():
 @bp_arbolp.route('/exportar_pdf', methods=['POST'])
 def exportar_pdf():
     municipio = request.form.get("municipio")
+    if not municipio:
+        return jsonify({"status": "error", "msg": "Municipio no definido"}), 400
+
     if not os.path.exists(RUTA_ARBOL):
         with open(RUTA_ARBOL, 'w', encoding='utf-8') as f:
             json.dump({}, f)
@@ -62,7 +71,6 @@ def exportar_pdf():
 
     arbol = data.get(municipio, {"titulo": "Problema central", "efectos": [], "causas": []})
 
-    # Generar HTML para el PDF (igual que tu app)
     html = f"""
     <html>
     <head>
@@ -92,6 +100,13 @@ def exportar_pdf():
     </html>
     """
 
+    # Si Render no tiene wkhtmltopdf, devolvemos un mensaje
+    if not PDFKIT_CONFIG:
+        return jsonify({
+            "status": "error",
+            "msg": "Generación de PDF no disponible en este servidor."
+        }), 500
+
     pdf_path = os.path.join(DATA_DIR, f"arbol_problemas_{municipio}.pdf")
     pdfkit.from_string(html, pdf_path, configuration=PDFKIT_CONFIG)
     return send_file(pdf_path, as_attachment=True)
@@ -100,6 +115,9 @@ def exportar_pdf():
 @bp_arbolp.route('/exportar_word', methods=['POST'])
 def exportar_word():
     municipio = request.form.get("municipio")
+    if not municipio:
+        return jsonify({"status": "error", "msg": "Municipio no definido"}), 400
+
     if not os.path.exists(RUTA_ARBOL):
         with open(RUTA_ARBOL, 'w', encoding='utf-8') as f:
             json.dump({}, f)
