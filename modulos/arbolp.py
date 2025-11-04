@@ -10,9 +10,9 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR = os.path.join(BASE_DIR, "data")
 RUTA_ARBOL = os.path.join(DATA_DIR, "arbol_problemas.json")
 os.makedirs(DATA_DIR, exist_ok=True)
-
 WKHTMLTOPDF_PATH = r"C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe"  # Ajusta si tu ruta es diferente
 PDFKIT_CONFIG = pdfkit.configuration(wkhtmltopdf=WKHTMLTOPDF_PATH)
+
 
 # ------------------ Rutas ------------------
 @bp_arbolp.route('/arbolp')
